@@ -1,0 +1,25 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 250px;
+  margin: auto;
+  text-align: center;
+}
+
+input, button {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  cursor: pointer;
+  background-color: #01b4e4;
+  color: white;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.6;
+}

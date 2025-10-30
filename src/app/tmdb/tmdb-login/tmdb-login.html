@@ -1,0 +1,25 @@
+<div class="login-container">
+  <h2>Login en TMDB</h2>
+
+  <input
+    type="text"
+    placeholder="Usuario"
+    [value]="username()"
+    (input)="onUsernameChange($event)"
+  />
+
+  <input
+    type="password"
+    placeholder="Contraseña"
+    [value]="password()"
+    (input)="onPasswordChange($event)"
+  />
+
+  <button (click)="login()" [disabled]="loading()">Iniciar sesión</button>
+
+  @if (loading()) {
+    <p>🔄 Iniciando sesión...</p>
+  } @else if (message()) {
+    <p>{{ message() }}</p>
+  }
+</div>
