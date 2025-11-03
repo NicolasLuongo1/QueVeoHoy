@@ -1,0 +1,24 @@
+<div class="chat-container">
+  <h2>Chat con Gemini 🤖</h2>
+
+<textarea
+  placeholder="Escribí tu pregunta..."
+  rows="4"
+  [value]="userInput()"
+  (input)="onInputChange($event)">
+</textarea>
+
+  <button (click)="sendPrompt()" [disabled]="loading()">Enviar</button>
+
+  @if (loading()) {
+    <div class="loading">⏳ Cargando respuesta...</div>
+  }
+
+  @if (response()) {
+    <div class="response">
+      <strong>Gemini:</strong>
+      <p>{{ response() }}</p>
+    </div>
+  }
+</div>
+
