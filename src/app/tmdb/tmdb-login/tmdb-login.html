@@ -1,9 +1,10 @@
+<div class="login-bg"></div>
 <div class="login-container">
-  <h2>Login en TMDB</h2>
+  <h2>¡Te damos la bienvenida!</h2>
 
   <input
     type="text"
-    placeholder="Usuario"
+    placeholder="Ingresá tu e-mail corporativo"
     [value]="username()"
     (input)="onUsernameChange($event)"
   />
@@ -15,7 +16,9 @@
     (input)="onPasswordChange($event)"
   />
 
-  <button (click)="login()" [disabled]="loading()">Iniciar sesión</button>
+  <button (click)="login()" [disabled]="loading()">Ingresar</button>
+
+  <button (click)="register()" [disabled]="loading()">Registrarse</button>
 
   @if (loading()) {
     <p>🔄 Iniciando sesión...</p>

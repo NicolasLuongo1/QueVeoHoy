@@ -4,7 +4,7 @@ import { environment } from '../enviroments/enviroment';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
-export class TmdbService {
+export class AuthService {
   private baseUrl = environment.tmdbBaseUrl;
   private apiKey = environment.tmdbApiKey;
   private readonly SESSION_KEY = 'tmdb_session_id'; // 🔑 clave para localStorage

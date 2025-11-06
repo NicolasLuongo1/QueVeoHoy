@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { TmdbService } from '../tmdb-service';
+import { AuthService } from '../auth-service';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 
@@ -16,7 +16,7 @@ export class TmdbLogin {
   message = signal('');
   loading = signal(false);
 
-  constructor(private tmdbService: TmdbService) {}
+  constructor(private authService: AuthService) {}
 
   onUsernameChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -34,24 +34,29 @@ export class TmdbLogin {
 
   try {
     // 1️⃣ Crear token
-    const tokenResp: any = await firstValueFrom(this.tmdbService.createRequestToken());
+    const tokenResp: any = await firstValueFrom(this.authService.createRequestToken());
     const token = tokenResp.request_token;
 
     // 2️⃣ Validar login
     await firstValueFrom(
-      this.tmdbService.validateWithLogin(this.username(), this.password(), token)
+      this.authService.validateWithLogin(this.username(), this.password(), token)
     );
 
     // 3️⃣ Crear sesión
-    const sessionId = await this.tmdbService.createSession(token); // ✅ ya devuelve Promise<string>
+    const sessionId = await this.authService.createSession(token); // ✅ ya devuelve Promise<string>
+    //console.log(`Sesión iniciada correctamente. Session ID: ${sessionId}`);
+    console.log(`Sesión iniciada correctamente. Session ID: ${token}`);
+    // window.location.href = '/home';
 
-    this.message.set(`✅ Sesión iniciada correctamente. Session ID: ${sessionId}`);
   } catch (error) {
-    console.error(error);
-    this.message.set('❌ Error en el inicio de sesión.');
+    console.log('Credenciales inválidas o error en el proceso de login.', error);
   } finally {
     this.loading.set(false);
   }
 }
+
+  register() {
+    window.open('https://www.themoviedb.org/signup', '_blank');
+  }
 
 }
