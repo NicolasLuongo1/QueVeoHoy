@@ -1,7 +1,7 @@
 
 import { Routes } from '@angular/router';
 
-import { HomeComponent } from './home.component';
+import { HomeComponent } from './home/home.component';
 import { TmdbLogin } from './tmdb/tmdb-login/tmdb-login';
 
 export const routes: Routes = [

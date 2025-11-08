@@ -7,49 +7,77 @@ import { firstValueFrom } from 'rxjs';
 export class AuthService {
   private baseUrl = environment.tmdbBaseUrl;
   private apiKey = environment.tmdbApiKey;
-  private readonly SESSION_KEY = 'tmdb_session_id'; // 🔑 clave para localStorage
+  
+  // Claves para localStorage
+  private readonly SESSION_KEY = 'tmdb_session_id';
+  private readonly ACCOUNT_KEY = 'tmdb_account_id'; 
 
   constructor(private http: HttpClient) {}
 
-  // Guardar session_id en localStorage
+  // Guardamos el "session_id" en localStorage
   private saveSessionId(sessionId: string) {
     localStorage.setItem(this.SESSION_KEY, sessionId);
   }
 
-  // Obtener session_id de localStorage
+  // Guardamos el "account_id" en localStorage
+  private saveAccountId(accountId: string) {
+    localStorage.setItem(this.ACCOUNT_KEY, accountId);
+  }
+
+  // Obtenemos el "session_id" de localStorage
   getSessionId(): string | null {
     return localStorage.getItem(this.SESSION_KEY);
   }
 
-  // Logout: eliminar session_id
-  logout() {
-    localStorage.removeItem(this.SESSION_KEY);
+  // Obtenemos el "account_id" de localStorage
+  getAccountId(): string | null {
+    return localStorage.getItem(this.ACCOUNT_KEY);
   }
 
-  // Paso 1: Crear request token
+  // Logout para eliminar datos del localStorage
+  logout() {
+    localStorage.removeItem(this.SESSION_KEY);
+    localStorage.removeItem(this.ACCOUNT_KEY); 
+  }
+
+  // Creaamos el request token
   createRequestToken() {
     const url = `${this.baseUrl}/authentication/token/new?api_key=${this.apiKey}`;
     return this.http.get(url);
   }
 
-  // Paso 2: Validar el token con las credenciales del usuario
+  // Validar el token con las credenciales del usuario
   validateWithLogin(username: string, password: string, requestToken: string) {
     const url = `${this.baseUrl}/authentication/token/validate_with_login?api_key=${this.apiKey}`;
     return this.http.post(url, { username, password, request_token: requestToken });
   }
 
-  // Paso 3: Crear sesión si el token fue validado
-  async createSession(requestToken: string): Promise<string> {
-    const url = `${this.baseUrl}/authentication/session/new?api_key=${this.apiKey}`;
-    const sessionResp: any = await firstValueFrom(this.http.post(url, { request_token: requestToken }));
+  // Modificado para crear sesión, obtener Account ID y guardar todo
+  async createSession(requestToken: string): Promise<{ sessionId: string; accountId: number }> {
+    const sessionUrl = `${this.baseUrl}/authentication/session/new?api_key=${this.apiKey}`;
+    const sessionResp: any = await firstValueFrom(this.http.post(sessionUrl, { request_token: requestToken }));
     const sessionId = sessionResp.session_id;
-    this.saveSessionId(sessionId); // 🔑 guardamos la sesión
-    return sessionId;
+
+    if (!sessionId) {
+      throw new Error('No se pudo crear la sesión');
+    }
+
+    const accountResp: any = await firstValueFrom(this.getAccountDetails(sessionId));
+    const accountId = accountResp.id;
+
+    if (!accountId) {
+      throw new Error('No se pudo obtener el ID de la cuenta');
+    }
+
+    this.saveSessionId(sessionId);
+    this.saveAccountId(accountId.toString()); // Guardamos el ID de la cuenta
+
+    return { sessionId, accountId };
   }
 
-  // (Opcional) Obtener datos del usuario logueado
   getAccountDetails(sessionId: string) {
     const url = `${this.baseUrl}/account?api_key=${this.apiKey}&session_id=${sessionId}`;
     return this.http.get(url);
   }
+  
 }

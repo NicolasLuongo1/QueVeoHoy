@@ -1,132 +1,84 @@
-/*
- * MODIFICACIÓN:
- * 1. Se eliminó la clase ".login-bg".
- * 2. Se reemplazó el fondo del 'body' por un degradado más vibrante.
- * 3. Se aplicó un efecto "glassmorphism" (cristal) al .login-container.
- * 4. Se centró el .login-container vertical y horizontalmente.
- * 5. Se mejoraron los estilos de 'focus' y 'hover' para más interactividad.
- */
-
 body, html {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-  
-  /* Nuevo fondo: Un degradado más vívido */
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  
-  /* Centrado del contenedor */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+	background: linear-gradient(120deg, #e0e7ef 0%, #b3c6e0 100%);
+	min-height: 100vh;
 }
 
-/* La clase .login-bg ha sido eliminada.
-  El fondo ahora es manejado directamente por el 'body'.
-*/
+.login-bg {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	filter: blur(2.5px) brightness(0.7);
+	z-index: 0;
+}
 
 .login-container {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  width: 100%; /* Hacemos que sea adaptable */
-  max-width: 360px; /* Ancho máximo del formulario */
-  
-  /* Se elimina el 'margin-top' para permitir el centrado con flexbox */
-  margin: 0 1rem; /* Margen horizontal para móviles */
-  
-  padding: 36px 32px 32px 32px;
-  text-align: center;
-
-  /* --- Estilo "Glassmorphism" --- */
-  background: rgba(255, 255, 255, 0.15); /* Fondo semitransparente */
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px); /* El efecto "esmerilado" */
-  -webkit-backdrop-filter: blur(10px); /* Soporte para Safari */
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	width: 350px;
+	margin: 7vh auto 0 auto;
+	padding: 36px 32px 28px 32px;
+	background: #fff;
+	border-radius: 18px;
+	box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+	text-align: center;
 }
 
 .login-container h2 {
-  margin-bottom: 10px;
-  /* Color de texto más oscuro para mejor contraste sobre el fondo claro */
-  color: #2c3e50;
-  font-size: 1.75rem; /* Un poco más grande */
-  font-weight: 600;
+	margin-bottom: 10px;
+	color: #1a237e;
+	font-size: 1.6rem;
+	font-weight: 600;
 }
 
 .login-container input {
-  padding: 14px 16px; /* Más padding vertical */
-  border-radius: 10px; /* Bordes más redondeados */
-  border: 1px solid transparent; /* Borde inicial transparente */
-  background: rgba(255, 255, 255, 0.5); /* Fondo de input semitransparente */
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  color: #333;
-}
-
-/* Placeholder con un color más sutil */
-.login-container input::placeholder {
-  color: #666;
+	padding: 12px 14px;
+	border-radius: 8px;
+	border: 1px solid #b0bec5;
+	font-size: 1rem;
+	outline: none;
+	transition: border 0.2s;
 }
 
 .login-container input:focus {
-  /* Al hacer foco, usamos el color del botón primario */
-  border-color: #3949ab;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.2); /* Anillo de foco */
+	border: 1.5px solid #1976d2;
 }
 
 .login-container button {
-  padding: 14px 0; /* Más padding */
-  border-radius: 10px;
-  border: none;
-  background-color: #3949ab;
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 5px; /* Más espacio antes del botón */
-  transition: all 0.2s ease-out; /* Transición para todo */
-  box-shadow: 0 4px 12px rgba(57, 73, 171, 0.15);
+	padding: 12px 0;
+	border-radius: 8px;
+	border: none;
+	background-color: #3949ab;
+	color: #fff;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	margin-top: 2px;
+	transition: background 0.2s, box-shadow 0.2s;
+	box-shadow: 0 2px 8px rgba(57, 73, 171, 0.08);
 }
-
-/* Botón de "Registrarse" */
-.login-container button + button {
-  background: #01b4e4;
-  margin-top: 0;
-  box-shadow: 0 4px 12px rgba(1, 180, 228, 0.15);
-}
-
-/* Efecto Hover para los botones */
-.login-container button:not(:disabled):hover {
-  transform: translateY(-2px); /* Eleva el botón */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
-.login-container button:first-of-type:not(:disabled):hover {
-  box-shadow: 0 6px 16px rgba(57, 73, 171, 0.2);
-}
-.login-container button + button:not(:disabled):hover {
-  box-shadow: 0 6px 16px rgba(1, 180, 228, 0.2);
-}
-
 
 .login-container button:disabled {
-  opacity: 0.6;
-  background: #90a4ae;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+	opacity: 0.7;
+	background: #90a4ae;
+	cursor: not-allowed;
+}
+
+.login-container button + button {
+	background: #01b4e4;
+	margin-top: 0;
 }
 
 .login-container p {
-  margin: 0;
-  color: #333; /* Color de texto normal para mensajes */
-  font-size: 0.95rem;
-  font-weight: 500;
+	margin: 0;
+	color: #3949ab;
+	font-size: 0.98rem;
 }

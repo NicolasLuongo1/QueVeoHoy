@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { AuthService } from '../auth-service';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
+import { Router } from '@angular/router'; // ✅ Importar Router
 
 @Component({
   selector: 'tmdb-login',
@@ -16,7 +17,8 @@ export class TmdbLogin {
   message = signal('');
   loading = signal(false);
 
-  constructor(private authService: AuthService) {}
+  // ✅ Inyectar Router
+  constructor(private authService: AuthService, private router: Router) {}
 
   onUsernameChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -28,35 +30,37 @@ export class TmdbLogin {
     this.password.set(input.value);
   }
 
- async login() {
-  this.loading.set(true);
-  this.message.set('');
+  async login() {
+    this.loading.set(true);
+    this.message.set('');
 
-  try {
-    // 1️⃣ Crear token
-    const tokenResp: any = await firstValueFrom(this.authService.createRequestToken());
-    const token = tokenResp.request_token;
+    try {
+      // Crear token
+      const tokenResp: any = await firstValueFrom(this.authService.createRequestToken());
+      const token = tokenResp.request_token;
 
-    // 2️⃣ Validar login
-    await firstValueFrom(
-      this.authService.validateWithLogin(this.username(), this.password(), token)
-    );
+      // Validar login
+      await firstValueFrom(
+        this.authService.validateWithLogin(this.username(), this.password(), token)
+      );
 
-    // 3️⃣ Crear sesión
-    const sessionId = await this.authService.createSession(token); // ✅ ya devuelve Promise<string>
-    //console.log(`Sesión iniciada correctamente. Session ID: ${sessionId}`);
-    console.log(`Sesión iniciada correctamente. Session ID: ${token}`);
-    // window.location.href = '/home';
+      //  Crear sesión y obtener datos
+      //  createSession para devolver el accountId y el sessionId 
+      await this.authService.createSession(token);
+      
+      this.message.set('¡Login exitoso! Redirigiendo...');
 
-  } catch (error) {
-    console.log('Credenciales inválidas o error en el proceso de login.', error);
-  } finally {
-    this.loading.set(false);
+      this.router.navigate(['/home']);
+
+    } catch (error) {
+      this.message.set('Credenciales inválidas o error en el proceso.');
+      console.error('Error en el proceso de login.', error); 
+    } finally {
+      this.loading.set(false);
+    }
   }
-}
 
   register() {
     window.open('https://www.themoviedb.org/signup', '_blank');
   }
-
 }
