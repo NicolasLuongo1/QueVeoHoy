@@ -14,7 +14,8 @@ export class App {
 
   ngOnInit(): void {
     this.loadSampleMovies();
-  }
+    this.loadCategories();
+   }
 
   private loadSampleMovies(): void {
     this.tmdbClient.discoverMovies({
@@ -29,6 +30,17 @@ export class App {
         console.error('Error al consultar TMDB:', error);
       }
     });
+  }
+
+  private loadCategories(){
+    this.tmdbClient.getCategories().subscribe({
+      next:(resp)=>{
+        console.log('Resultados de generos',resp)
+      },
+      error:(msj)=>{
+        console.error('Fallo consultar las categorias', msj)
+      }
+    })
   }
 
   protected readonly title = signal('QueVeoHoy');
