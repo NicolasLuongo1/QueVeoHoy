@@ -1,84 +1,152 @@
-body, html {
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-	background: linear-gradient(120deg, #e0e7ef 0%, #b3c6e0 100%);
-	min-height: 100vh;
+/* Actualización completa para tmdb-login.css
+  (Reemplaza el contenido de tu tmdb-login.css)
+*/
+:host {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; 
+  overflow: hidden;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+/* --- 1. Fondo (El fondo borroso y los splashes pueden quedar igual) --- */
 .login-bg {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	filter: blur(2.5px) brightness(0.7);
-	z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.6); /* <-- Más oscuro */
+  z-index: -2;
 }
 
+.splash {
+  position: absolute;
+  width: 40vw;
+  height: 40vw;
+  min-width: 300px;
+  min-height: 300px;
+  border-radius: 50%;
+  filter: blur(50px);
+  z-index: -1;
+}
+.splash-purple { /* ... (sin cambios) ... */ }
+.splash-blue { /* ... (sin cambios) ... */ }
+
+
+/* --- 3. Contenedor del Login (Modo Oscuro) --- */
 .login-container {
-	position: relative;
-	z-index: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 18px;
-	width: 350px;
-	margin: 7vh auto 0 auto;
-	padding: 36px 32px 28px 32px;
-	background: #fff;
-	border-radius: 18px;
-	box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-	text-align: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 32px;
+  background-color: #1e1e1e; /* 👈 CAMBIO: Fondo del modal oscuro */
+  border: 1px solid #333; /* Borde sutil */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 10;
+  margin: 16px;
 }
 
-.login-container h2 {
-	margin-bottom: 10px;
-	color: #1a237e;
-	font-size: 1.6rem;
-	font-weight: 600;
+/* --- 4. Título (Modo Oscuro) --- */
+h2 {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #f5f5f5; /* 👈 CAMBIO: Título claro */
+  margin: 0 0 8px 0;
 }
 
-.login-container input {
-	padding: 12px 14px;
-	border-radius: 8px;
-	border: 1px solid #b0bec5;
-	font-size: 1rem;
-	outline: none;
-	transition: border 0.2s;
+/* --- 5. Inputs (Modo Oscuro) --- */
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid #444; /* 👈 CAMBIO: Borde oscuro */
+  border-radius: 8px;
+  background-color: #2c2c2c; /* 👈 CAMBIO: Fondo de input oscuro */
+  color: #f5f5f5; /* 👈 CAMBIO: Texto de input claro */
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.login-container input:focus {
-	border: 1.5px solid #1976d2;
+input::placeholder {
+  color: #888; /* Placeholder más claro */
 }
 
-.login-container button {
-	padding: 12px 0;
-	border-radius: 8px;
-	border: none;
-	background-color: #3949ab;
-	color: #fff;
-	font-weight: 600;
-	font-size: 1rem;
-	cursor: pointer;
-	margin-top: 2px;
-	transition: background 0.2s, box-shadow 0.2s;
-	box-shadow: 0 2px 8px rgba(57, 73, 171, 0.08);
+input[type="text"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: #7c4dff; /* 👈 CAMBIO: Morado más brillante para el foco */
+  box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.3);
 }
 
-.login-container button:disabled {
-	opacity: 0.7;
-	background: #90a4ae;
-	cursor: not-allowed;
+/* --- 6. Botones (Modo Oscuro) --- */
+button {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
 }
 
-.login-container button + button {
-	background: #01b4e4;
-	margin-top: 0;
+/* Botón "Ingresar" (Principal) */
+button:nth-of-type(1) {
+  background-color: #7c4dff; /* 👈 CAMBIO: Morado más brillante */
+  color: #FFFFFF;
 }
 
-.login-container p {
-	margin: 0;
-	color: #3949ab;
-	font-size: 0.98rem;
+button:nth-of-type(1):hover {
+  background-color: #9575cd;
+}
+
+/* Botón "Registrarse" (Secundario) */
+button:nth-of-type(2) {
+  background-color: transparent; /* 👈 CAMBIO: Transparente */
+  color: #b39ddb; /* 👈 CAMBIO: Texto morado claro */
+  border: 1px solid #7c4dff; /* 👈 CAMBIO: Borde morado */
+}
+
+button:nth-of-type(2):hover {
+  background-color: rgba(124, 77, 255, 0.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- 7. Mensajes de Estado (Modo Oscuro) --- */
+p {
+  text-align: center;
+  font-size: 14px;
+  margin: 0;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Mensaje de carga */
+p:first-of-type {
+  color: #e0e0e0;
+  background-color: #333;
+}
+
+/* Mensaje de error */
+p:last-of-type {
+  color: #ffcdd2; /* Rojo claro */
+  background-color: #D32F2F; /* Fondo rojo oscuro */
 }

@@ -1,0 +1,75 @@
+/* Actualización para home.component.css
+*/
+.home-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; 
+  gap: 16px;
+}
+
+h1, h2 {
+  color: #f5f5f5;
+}
+
+/* Botón de Logout (ahora estilo "fantasma") */
+header button {
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #7c4dff; /* 👈 CAMBIO: Borde morado brillante */
+  cursor: pointer;
+  background-color: transparent; /* 👈 CAMBIO: Transparente */
+  color: #b39ddb; /* 👈 CAMBIO: Texto morado claro */
+  transition: background-color 0.2s, color 0.2s;
+}
+
+header button:hover {
+  background-color: rgba(124, 77, 255, 0.1);
+  color: #f5f5f5;
+}
+
+.loading-message {
+  color: #f5f5f5;
+  font-size: 18px;
+  text-align: center;
+  padding: 40px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+  padding-top: 20px;
+}
+
+/* Botón "Cargar Más" (estilo "fantasma") */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.load-more-container button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #7c4dff; /* 👈 CAMBIO: Borde morado brillante */
+  cursor: pointer;
+  background-color: transparent;
+  color: #b39ddb; /* 👈 CAMBIO: Texto morado claro */
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.load-more-container button:hover {
+  background-color: rgba(124, 77, 255, 0.1);
+  color: #f5f5f5;
+}

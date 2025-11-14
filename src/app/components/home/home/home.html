@@ -1,0 +1,27 @@
+<div class="home-container">
+  <header>
+    <h1>Bienvenido a QueVeoHoy?</h1>
+    <button (click)="logout()">🚪 Cerrar Sesión</button>
+  </header>
+  
+  <hr>
+  
+  <h2>Películas Populares</h2>
+
+  <div class="movies-grid">
+    @for (movie of popularMovies(); track movie.id) {
+      <app-movie-card [movie]="movie" />
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="loading-message">Cargando...</p>
+  }
+  
+  @if (!loading() && currentPage() < totalPages()) {
+    <div class="load-more-container">
+      <button (click)="loadMoreMovies()">Cargar Más Películas</button>
+    </div>
+  }
+
+</div>
