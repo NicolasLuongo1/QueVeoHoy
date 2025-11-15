@@ -1,0 +1,18 @@
+.content-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  color: #fff;
+}
+
+.description-text {
+  line-height: 1.8;
+  color: #e0e0e0;
+  font-size: 1rem;
+  margin: 0;
+}
+

@@ -1,0 +1,37 @@
+@if (movie()) {
+  @let movieHtml = movie();
+  
+  <div class="movie-detail-container">
+    <app-movie-header />
+
+    <app-movie-banner 
+      [backdropUrl]="getBackdropUrl(movieHtml?.backdrop_path ?? null)"
+      [title]="movieHtml?.title ?? ''"
+      [overview]="movieHtml?.overview" />
+
+    <div class="content-wrapper">
+      <div class="left-column">
+        <app-movie-description [overview]="movieHtml?.overview ?? ''" />
+
+        <app-movie-cast 
+          [cast]="getCast()"
+          [getProfileUrl]="getProfileUrl.bind(this)"
+          (scrollLeft)="scrollCast('left')"
+          (scrollRight)="scrollCast('right')" />
+
+        <app-movie-reviews />
+      </div>
+
+      <app-movie-info-sidebar
+        [movie]="movieHtml"
+        [releaseYear]="getReleaseYear()"
+        [rating]="getRating()"
+        [director]="getDirector()"
+        [musicComposer]="getMusicComposer()" />
+    </div>
+  </div>
+} @else {
+  <div class="loading-container">
+    <p>Cargando detalles de la película...</p>
+  </div>
+}

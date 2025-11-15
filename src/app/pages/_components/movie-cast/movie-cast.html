@@ -1,0 +1,32 @@
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">Reparto</h2>
+    @if (cast().length > 0) {
+      <div class="cast-nav">
+        <button class="nav-button" (click)="onScrollLeft()" aria-label="Anterior">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 12L6 8L10 4"/>
+          </svg>
+        </button>
+        <button class="nav-button" (click)="onScrollRight()" aria-label="Siguiente">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 4L10 8L6 12"/>
+          </svg>
+        </button>
+      </div>
+    }
+  </div>
+  @if (cast().length > 0) {
+    <div class="cast-container">
+      @for (actor of cast(); track actor.id) {
+        <div class="cast-member">
+          <img [src]="getProfileUrl()(actor.profile_path)" [alt]="actor.name" class="cast-image">
+          <p class="cast-name">{{ actor.name }}</p>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="no-data">Reparto no disponible</p>
+  }
+</section>
+

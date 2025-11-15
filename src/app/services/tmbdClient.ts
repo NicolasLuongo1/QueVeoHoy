@@ -1,9 +1,11 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DiscoverMovieParams, DiscoverMovieResponse } from '../models/movie';
+import { DiscoverMovieParams, DiscoverMovieResponse, Movie } from '../models/movie';
 import { Categories } from '../models/Categories';
 import { environment } from '../enviroments/enviroment';
+import { MovieDetailDTO } from '../models/detail/MovieDetailDTO';
+import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -60,8 +62,17 @@ export class TMDBClient {
   // =====================================================================================
   // 🔥 MOVIE DETAILS
   // =====================================================================================
-  getMovieDetails(movieId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/movie/${movieId}`, {
+  getMovieDetail(movieId: number): Observable<MovieDetailDTO> {
+    return this.http.get<MovieDetailDTO>(`${this.baseUrl}/movie/${movieId}`, {
+      headers: this.defaultHeaders
+    });
+  }
+
+  // =====================================================================================
+  // 🔥 MOVIE CREDITS (CAST & CREW)
+  // =====================================================================================
+  getMovieCredits(movieId: number): Observable<MovieCreditsDTO> {
+    return this.http.get<MovieCreditsDTO>(`${this.baseUrl}/movie/${movieId}/credits`, {
       headers: this.defaultHeaders
     });
   }
@@ -90,8 +101,19 @@ export class TMDBClient {
   // =====================================================================================
   // 🔥 IMAGE HELPER
   // =====================================================================================
-  getImageUrl(posterPath: string, size: string = 'w500'): string {
+  getImageUrl(posterPath: string | null | undefined, size: string = 'w500'): string {
+    if (!posterPath) return 'assets/no-image.png';
     return `${this.imgBaseUrl}${size}${posterPath}`;
+  }
+
+  getBackdropUrl(backdropPath: string | null | undefined, size: string = 'w1280'): string {
+    if (!backdropPath) return 'assets/no-image.png';
+    return `${this.imgBaseUrl}${size}${backdropPath}`;
+  }
+
+  getProfileUrl(profilePath: string | null | undefined, size: string = 'w185'): string {
+    if (!profilePath) return 'assets/no-image.png';
+    return `${this.imgBaseUrl}${size}${profilePath}`;
   }
 
   // =====================================================================================

@@ -1,0 +1,97 @@
+.banner-section {
+  position: relative;
+  width: 100%;
+  min-height: 500px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  padding: 2rem;
+}
+
+.banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.banner-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.movie-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0 0 1rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  color: #fff;
+}
+
+.movie-description {
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  color: #e0e0e0;
+}
+
+.banner-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+
+
+.action-button {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 968px) {
+  .movie-title {
+    font-size: 2rem;
+  }
+
+  .banner-section {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 640px) {
+  .banner-section {
+    padding: 1.5rem 1rem;
+    min-height: 350px;
+  }
+
+  .movie-title {
+    font-size: 1.75rem;
+  }
+
+  .movie-description {
+    font-size: 1rem;
+  }
+
+  .banner-actions {
+    flex-wrap: wrap;
+  }
+}
+

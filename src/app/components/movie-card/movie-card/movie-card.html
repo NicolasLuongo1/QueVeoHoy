@@ -1,5 +1,5 @@
 @if (movie) {
-  <div class="movie-card">
+  <div class="movie-card" (click)="navigateToDetail(movie.id)">
 
     <img
       class="poster"

@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TMDBClient } from '../../../services/tmbdClient';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-movie-card',
@@ -12,6 +13,8 @@ import { TMDBClient } from '../../../services/tmbdClient';
 export class MovieCard {
 
   @Input() movie: any;
+
+  protected readonly router = inject(Router)
 
   private tmdb = inject(TMDBClient);
 
@@ -27,5 +30,9 @@ export class MovieCard {
   getRating(): number {
     const rating = this.movie?.vote_average ?? 0;
     return Math.round(rating * 10) / 10;
+  }
+
+  navigateToDetail(id:number) {
+    this.router.navigateByUrl(`/detail/${id}`)
   }
 }

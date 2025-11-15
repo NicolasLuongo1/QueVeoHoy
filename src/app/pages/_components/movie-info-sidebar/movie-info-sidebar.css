@@ -1,0 +1,110 @@
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.info-section {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-section:last-child {
+  border-bottom: none;
+}
+
+.info-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+  color: #fff;
+}
+
+/* Tags */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #fff;
+}
+
+.tag:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ratings */
+.rating-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.rating-item:last-child {
+  margin-bottom: 0;
+}
+
+.rating-label {
+  font-size: 0.875rem;
+  color: #e0e0e0;
+}
+
+.stars {
+  display: flex;
+  gap: 0.25rem;
+  color: #333;
+}
+
+.stars svg.filled {
+  color: #DC2626;
+}
+
+/* Person Info (Director, Music) */
+.person-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.person-avatar {
+  flex-shrink: 0;
+}
+
+.person-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.person-name {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  color: #fff;
+}
+
+.person-location {
+  font-size: 0.875rem;
+  color: #999;
+  margin: 0;
+}
+
