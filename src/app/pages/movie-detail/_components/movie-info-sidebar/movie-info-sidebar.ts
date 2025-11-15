@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MovieDetailDTO } from '../../../models/detail/MovieDetailDTO';
+import { MovieDetailDTO } from '../../../../models/detail/MovieDetailDTO';
 
 @Component({
   selector: 'app-movie-info-sidebar',

@@ -4,12 +4,12 @@ import { TMDBClient } from '../../services/tmbdClient';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MovieDetailDTO } from '../../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO, Cast } from '../../models/detail/MovieCreditsDTO';
-import { MovieHeader } from '../_components/movie-header/movie-header';
-import { MovieBanner } from '../_components/movie-banner/movie-banner';
-import { MovieDescription } from '../_components/movie-description/movie-description';
-import { MovieCast } from '../_components/movie-cast/movie-cast';
-import { MovieReviews } from '../_components/movie-reviews/movie-reviews';
-import { MovieInfoSidebar } from '../_components/movie-info-sidebar/movie-info-sidebar';
+import { MovieHeader } from './_components/movie-header/movie-header';
+import { MovieBanner } from './_components/movie-banner/movie-banner';
+import { MovieDescription } from './_components/movie-description/movie-description';
+import { MovieCast } from './_components/movie-cast/movie-cast';
+import { MovieReviews } from './_components/movie-reviews/movie-reviews';
+import { MovieInfoSidebar } from './_components/movie-info-sidebar/movie-info-sidebar';
 
 @Component({
   selector: 'app-movie-detail',
