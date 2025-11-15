@@ -1,0 +1,28 @@
+<div class="search-box">
+  <div class="input-container">
+    <span class="icon">🔍</span>
+
+    <input 
+      type="text"
+      placeholder="Buscá películas por género, año, actores, etc..."
+      [value]="userInput()"
+      (input)="onInputChange($event)"
+      (keyup.enter)="sendPrompt()"
+    />
+
+    <button class="send-btn" (click)="sendPrompt()" [disabled]="loading()">
+      Buscar
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-message">⏳ Buscando recomendaciones...</p>
+  }
+
+  @if (response()) {
+    <div class="response-box">
+      <h3>✨ Recomendación Inteligente</h3>
+      <p>{{ response() }}</p>
+    </div>
+  }
+</div>

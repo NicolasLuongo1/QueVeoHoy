@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../enviroments/enviroment'; //
 
@@ -11,8 +11,9 @@ export class TmdbService {
   private baseUrl = environment.tmdbBaseUrl; //
   private apiKey = environment.tmdbApiKey; //
   private imgBaseUrl = 'https://image.tmdb.org/t/p/';
+  private readonly http = inject(HttpClient);
 
-  constructor(private http: HttpClient) { }
+  constructor() { }
 
    // Obtiene una página específica de películas populares.
   getPopularMovies(page: number = 1): Observable<any> { 
@@ -29,4 +30,15 @@ export class TmdbService {
   getImageUrl(posterPath: string, size: string = 'w500'): string {
     return `${this.imgBaseUrl}${size}${posterPath}`;
   }
+
+  // Obtiene detalles de una película por su ID.
+  getMovieDetails(movieId: number): Observable<any> {
+    const url = `${this.baseUrl}/movie/${movieId}`;
+    return this.http.get(url, {
+      params: {
+        api_key: this.apiKey
+      }
+    });
+  }
+
 }

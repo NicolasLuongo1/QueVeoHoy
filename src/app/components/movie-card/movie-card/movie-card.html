@@ -1,19 +1,17 @@
 @if (movie) {
   <div class="movie-card">
-    <img 
-      [src]="getPosterUrl(movie.poster_path)" 
-      [alt]="movie.title" 
-      class="movie-poster"
-    />
     
-    <div class="movie-info">
-      <h3 class="movie-title">{{ movie.title }}</h3>
-      
+    <img 
+      class="poster"
+      [src]="getPosterUrl(movie.poster_path)"
+      [alt]="movie.title"
+    />
+
+    <div class="overlay">
+      <h3 class="title">{{ movie.title }}</h3>
+
       @if (movie.vote_average) {
-        <div class="movie-rating">
-          <span>⭐</span>
-          {{ movie.vote_average | number:'1.1-1' }}
-        </div>
+        <span class="rating">⭐ {{ movie.vote_average | number:'1.1-1' }}</span>
       }
     </div>
   </div>

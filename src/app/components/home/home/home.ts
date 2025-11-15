@@ -4,11 +4,12 @@ import { AuthService } from '../../../tmdb/auth-service'; //
 import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
 import { MovieCard } from '../../movie-card/movie-card/movie-card';
+import { GeminiChat } from "../../../gemini/gemini-chat/gemini-chat";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MovieCard],
+  imports: [CommonModule, MovieCard, GeminiChat],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

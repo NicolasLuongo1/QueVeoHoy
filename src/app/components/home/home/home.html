@@ -7,6 +7,7 @@
   <hr>
   
   <h2>Películas Populares</h2>
+   <gemini-chat></gemini-chat>
 
   <div class="movies-grid">
     @for (movie of popularMovies(); track movie.id) {
@@ -23,5 +24,7 @@
       <button (click)="loadMoreMovies()">Cargar Más Películas</button>
     </div>
   }
+
+ 
 
 </div>
