@@ -1,9 +1,9 @@
 @if (movie) {
   <div class="movie-card">
-    
-    <img 
+
+    <img
       class="poster"
-      [src]="getPosterUrl(movie.poster_path)"
+      [src]="getPosterUrl()"
       [alt]="movie.title"
     />
 
@@ -11,8 +11,9 @@
       <h3 class="title">{{ movie.title }}</h3>
 
       @if (movie.vote_average) {
-        <span class="rating">⭐ {{ movie.vote_average | number:'1.1-1' }}</span>
+        <span class="rating">⭐ {{ getRating() }}</span>
       }
     </div>
+
   </div>
 }

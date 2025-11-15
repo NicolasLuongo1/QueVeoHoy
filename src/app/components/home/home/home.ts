@@ -1,10 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, effect, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../tmdb/auth-service'; //
-import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
+
+import { AuthService } from '../../../tmdb/auth-service';
+import { TMDBClient } from '../../../services/tmbdClient';
 import { MovieCard } from '../../movie-card/movie-card/movie-card';
-import { GeminiChat } from "../../../gemini/gemini-chat/gemini-chat";
+import { GeminiChat } from '../../../gemini/gemini-chat/gemini-chat';
 
 @Component({
   selector: 'app-home',
@@ -13,64 +14,66 @@ import { GeminiChat } from "../../../gemini/gemini-chat/gemini-chat";
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
 
-  public loading = signal(true);
-  public popularMovies = signal<any[]>([]);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private tmdb = inject(TMDBClient);
 
-  public currentPage = signal(1);
-  public totalPages = signal(0);
+  // Signals
+  loading = signal(true);
+  movies = signal<any[]>([]);
+  page = signal(1);
+  totalPages = signal(0);
 
-  constructor(
-    private authService: AuthService, 
-    private router: Router,
-    private tmdbService: TmdbService
-  ) {}
-
-  ngOnInit() {
-    this.loadPopularMovies(); 
+  constructor() {
+    // Efecto: cuando cambia page → carga películas
+    effect(() => {
+      this.fetchPopularMovies();
+    });
   }
 
-   // Carga películas. Si 'isLoadMore' es true, añade las películas.
-  loadPopularMovies(isLoadMore = false) {
+  // =====================================================================
+  // 🔥 Carga películas populares
+  // =====================================================================
+  fetchPopularMovies() {
     this.loading.set(true);
-    const pageToLoad = this.currentPage();
 
-    this.tmdbService.getPopularMovies(pageToLoad).subscribe({
-      next: (response) => {
-        
-        // Actualiza la lista de películas
-        if (isLoadMore) {
-          // Añade las nuevas películas a la lista existente
-          this.popularMovies.update(currentMovies => 
-            [...currentMovies, ...response.results]
-          );
+    this.tmdb.getPopularMovies(this.page()).subscribe({
+      next: res => {
+        if (this.page() === 1) {
+          this.movies.set(res.results);
         } else {
-          // Reemplaza la lista (solo en la primera carga)
-          this.popularMovies.set(response.results);
+          this.movies.update(prev => [...prev, ...res.results]);
         }
-        
-        this.totalPages.set(response.total_pages);
+
+        this.totalPages.set(res.total_pages);
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Error al cargar películas populares', err);
+      error: err => {
+        console.error('Error cargando películas populares:', err);
         this.loading.set(false);
       }
     });
   }
 
-  //Nueva función para el botón "Cargar Más"
-   
-  loadMoreMovies() {
-    // Incrementa el contador de página
-    this.currentPage.update(page => page + 1);
-    // Llama a cargar, especificando que es "load more"
-    this.loadPopularMovies(true);
+  // =====================================================================
+  // 🔥 Paginación
+  // =====================================================================
+  loadMore() {
+    this.page.update(p => p + 1);
+  }
+
+  // =====================================================================
+  // 🔥 Reemplazar películas cuando gemini filtre
+  // (lo usaremos luego en el siguiente paso)
+  // =====================================================================
+  setFilteredMovies(movies: any[]) {
+    this.movies.set(movies);
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']); 
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

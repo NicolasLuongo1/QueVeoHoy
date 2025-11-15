@@ -3,14 +3,14 @@
     <h1>Bienvenido a QueVeoHoy?</h1>
     <button (click)="logout()">🚪 Cerrar Sesión</button>
   </header>
-  
+
   <hr>
-  
+
   <h2>Películas Populares</h2>
-   <gemini-chat></gemini-chat>
+  <gemini-chat></gemini-chat>
 
   <div class="movies-grid">
-    @for (movie of popularMovies(); track movie.id) {
+    @for (movie of movies(); track movie.id) {
       <app-movie-card [movie]="movie" />
     }
   </div>
@@ -18,13 +18,10 @@
   @if (loading()) {
     <p class="loading-message">Cargando...</p>
   }
-  
-  @if (!loading() && currentPage() < totalPages()) {
+
+  @if (!loading() && page() < totalPages()) {
     <div class="load-more-container">
-      <button (click)="loadMoreMovies()">Cargar Más Películas</button>
+      <button (click)="loadMore()">Cargar Más Películas</button>
     </div>
   }
-
- 
-
 </div>

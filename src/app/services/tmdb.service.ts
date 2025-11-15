@@ -7,7 +7,7 @@ import { environment } from '../enviroments/enviroment'; //
   providedIn: 'root'
 })
 export class TmdbService {
-
+/*
   private baseUrl = environment.tmdbBaseUrl; //
   private apiKey = environment.tmdbApiKey; //
   private imgBaseUrl = 'https://image.tmdb.org/t/p/';
@@ -15,6 +15,7 @@ export class TmdbService {
 
   constructor() { }
 
+  /*
    // Obtiene una página específica de películas populares.
   getPopularMovies(page: number = 1): Observable<any> { 
     const url = `${this.baseUrl}/movie/popular`;
@@ -40,5 +41,5 @@ export class TmdbService {
       }
     });
   }
-
+*/
 }

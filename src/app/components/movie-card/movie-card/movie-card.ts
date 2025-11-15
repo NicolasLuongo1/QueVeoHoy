@@ -1,29 +1,31 @@
-import { Component, Input } from '@angular/core';
-import { TmdbService } from '../../../services/tmdb.service';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { TMDBClient } from '../../../services/tmbdClient';
 
 @Component({
   selector: 'app-movie-card',
   standalone: true,
-  imports: [CommonModule, DecimalPipe], 
+  imports: [CommonModule, DecimalPipe],
   templateUrl: './movie-card.html',
   styleUrl: './movie-card.css'
 })
 export class MovieCard {
-  
-  // Recibe la película como un Input
-  @Input() movie: any; 
 
-  constructor(private tmdbService: TmdbService) {}
+  @Input() movie: any;
 
-  // Obtiene la URL completa del póster usando el servicio.
-  getPosterUrl(posterPath: string): string {
-    return this.tmdbService.getImageUrl(posterPath);
+  private tmdb = inject(TMDBClient);
+
+  // Devuelve URL del póster o un placeholder si no hay
+  getPosterUrl(): string {
+    if (!this.movie?.poster_path) {
+      return 'assets/no-image.png';
+    }
+    return this.tmdb.getImageUrl(this.movie.poster_path);
   }
-  
-  
-  // Formatea la puntuación para que sea de un solo decimal.
-  getRating(rating: number): number {
+
+  // Redondea a 1 decimal
+  getRating(): number {
+    const rating = this.movie?.vote_average ?? 0;
     return Math.round(rating * 10) / 10;
   }
 }
