@@ -1,11 +1,11 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { TMDBClient } from '../../../services/tmbdClient';
 
 @Component({
   selector: 'app-movie-card',
   standalone: true,
-  imports: [CommonModule, DecimalPipe],
+  imports: [CommonModule],
   templateUrl: './movie-card.html',
   styleUrl: './movie-card.css'
 })
