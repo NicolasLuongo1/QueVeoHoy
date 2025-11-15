@@ -76,4 +76,24 @@ export class HomeComponent {
     this.auth.logout();
     this.router.navigate(['/login']);
   }
+
+  // =====================================================================
+  // 🔥 Manejar filtros recibidos desde GeminiChat
+  // =====================================================================
+applyGeminiFilters(filters: { genres: string[]; actors: string[] }) {
+  this.loading.set(true);
+
+  this.tmdb.searchMoviesWithFilters(filters).subscribe({
+    next: res => {
+      this.movies.set(res.results);
+      this.page.set(1);
+      this.totalPages.set(res.total_pages);
+      this.loading.set(false);
+    },
+    error: err => {
+      console.error('Error filtrando películas:', err);
+      this.loading.set(false);
+    }
+  });
+}
 }

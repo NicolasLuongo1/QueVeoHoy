@@ -9,12 +9,12 @@ import { GeminiService } from '../gemini-service';
   styleUrl: './gemini-chat.css'
 })
 export class GeminiChat {
+
   userInput = signal('');
   response = signal('');
   loading = signal(false);
-  protected readonly geminiService = inject(GeminiService);
 
-  constructor() {}
+  private readonly geminiService = inject(GeminiService);
 
   async sendPrompt() {
     const prompt = this.userInput().trim();
@@ -35,9 +35,7 @@ export class GeminiChat {
   }
 
   onInputChange(event: Event) {
-  const target = event.target as HTMLTextAreaElement;
-  this.userInput.set(target.value);
+    const target = event.target as HTMLTextAreaElement;
+    this.userInput.set(target.value);
+  }
 }
-
-}
-
