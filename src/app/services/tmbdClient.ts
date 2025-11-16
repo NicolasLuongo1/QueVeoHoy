@@ -120,69 +120,129 @@ private loadCategories() {
   //  GEMINI SERVICE
   // ====================================================================================
 
-searchMoviesWithFilters(filters: { genres: string[]; actors: string[] }) {
-
-  // 🔹 LOG 1 — Qué devolvió Gemini
+searchMoviesWithFilters(
+  filters: { genres: string[]; actors: string[] },
+  page: number = 1
+): Observable<{ results: Movie[]; total_pages: number }> {
   console.log("🔍 Filtros recibidos desde Gemini:", filters);
 
-  // 🔹 LOG 2 — Categorías ya cargadas de TMDB
-  console.log("🎭 Categorías cargadas desde TMDB:", this.categories());
-
-  // 🔹 LOG 3 — Géneros detectados por Gemini
-  console.log("🎭 Géneros pedidos por Gemini:", filters.genres);
-
-  // 1) Mapeo de géneros nombre → id
   const genreMap = new Map(
     this.categories().map(cat => [cat.name.toLowerCase().trim(), cat.id])
   );
-
-  // Normalizamos también los géneros que devuelve Gemini
-  const normalizedGenres = filters.genres.map(g => g.toLowerCase().trim());
-  const genreIds = normalizedGenres
-    .map(g => genreMap.get(g))
-    .filter(id => id !== undefined);
-
-  // 🔹 LOG 4 — IDs de géneros encontrados
+  const genreIds: number[] = filters.genres
+    .map(g => genreMap.get(g.toLowerCase().trim()))
+    .filter((id): id is number => !!id);
   console.log("🎯 IDs de géneros detectados:", genreIds);
 
-  // Normalizamos actores
-  const normalizedActors = filters.actors.map(a => a.toLowerCase().trim());
-  // 🔹 LOG 5 — Actores normalizados
-  console.log("🧑‍🎤 Actores normalizados:", normalizedActors);
+  const normalizedActors: string[] = filters.actors.map(a => a.toLowerCase().trim());
+  console.log("🧑‍🎤 Actores/personajes normalizados:", normalizedActors);
 
-  // 2) Preparar búsqueda de actores
-const actorRequests = filters.actors.length
-  ? filters.actors.map(actor => this.http.get<any>(`${this.baseUrl}/search/person`, {
-      headers: this.defaultHeaders,
-      params: new HttpParams().set('query', actor)
-    }))
-  : [];
+  const actorRequests = normalizedActors.length
+    ? normalizedActors.map(actor =>
+        this.http.get<{ results: { id: number }[] }>(`${this.baseUrl}/search/person`, {
+          headers: this.defaultHeaders,
+          params: new HttpParams().set('query', actor)
+        })
+      )
+    : [];
 
-return (actorRequests.length ? forkJoin(actorRequests) : of([])).pipe(
-  map(actorResponses => {
-    const actorIds = actorResponses
-      .map((r: any) => r.results?.[0]?.id)
-      .filter((id: any) => id);
-    console.log("🧑‍🎤 IDs de actores encontrados en TMDB:", actorIds);
-    return { genreIds, actorIds };
-  }),
-  switchMap(({ genreIds, actorIds }) => {
-    let params = new HttpParams()
-      .set('language', 'es-ES')
-      .set('page', 1);
+  return (actorRequests.length ? forkJoin(actorRequests) : of([])).pipe(
+    switchMap(actorResponses => {
+      const actorIds: number[] = actorResponses
+        .map(res => res.results?.[0]?.id)
+        .filter((id): id is number => !!id);
 
-    if (genreIds.length > 0) params = params.set('with_genres', genreIds.join(','));
-    if (actorIds.length > 0) params = params.set('with_people', actorIds.join(','));
+      const missingActors = normalizedActors.filter((_, i) => !actorIds[i]);
+      console.log("🧑‍🎤 IDs de actores encontrados:", actorIds);
+      console.log("🎭 Personajes sin actorId:", missingActors);
 
-    console.log("📡 Parámetros enviados a TMDB Discover:", params.toString());
+      // Determinar si ignoramos categorías
+      const ignoreGenres = actorIds.length > 0 || missingActors.length > 0;
 
-    return this.http.get<{ results: any[]; total_pages: number }>(
-      `${this.baseUrl}/discover/movie`,
-      { headers: this.defaultHeaders, params }
-    );
-  })
-);
+      // 1️⃣ Discover solo si NO hay actores/personajes
+      let discover$: Observable<{ results: Movie[]; total_pages: number }> = of({ results: [], total_pages: 1 });
+      if (!ignoreGenres && genreIds.length > 0) {
+        const discoverParams = new HttpParams()
+          .set('language', 'es-ES')
+          .set('page', page)
+          .set('with_genres', genreIds.join(','));
+
+        discover$ = this.http.get<{ results: Movie[]; total_pages: number }>(
+          `${this.baseUrl}/discover/movie`,
+          { headers: this.defaultHeaders, params: discoverParams }
+        );
+      }
+
+      // 2️⃣ Buscar actorIds en discover y filtrar por credits
+      let actorDiscover$: Observable<{ results: Movie[]; total_pages: number }> = of({ results: [], total_pages: 1 });
+      if (actorIds.length > 0) {
+        const discoverParams = new HttpParams()
+          .set('language', 'es-ES')
+          .set('page', page)
+          .set('with_people', actorIds.join(','));
+
+        actorDiscover$ = this.http.get<{ results: Movie[]; total_pages: number }>(
+          `${this.baseUrl}/discover/movie`,
+          { headers: this.defaultHeaders, params: discoverParams }
+        ).pipe(
+          switchMap(discoverRes => {
+            const creditRequests = discoverRes.results.map(movie =>
+              this.http.get<{ cast: { id: number }[] }>(`${this.baseUrl}/movie/${movie.id}/credits`, {
+                headers: this.defaultHeaders
+              }).pipe(
+                map(credits => ({ movie, hasActor: credits.cast.some(c => actorIds.includes(c.id)) }))
+              )
+            );
+            return forkJoin(creditRequests).pipe(
+              map(results => ({
+                results: results.filter(r => r.hasActor).map(r => r.movie),
+                total_pages: discoverRes.total_pages
+              }))
+            );
+          })
+        );
+      }
+
+      // 3️⃣ Búsqueda por personajes sin actorId
+      let searchMovies$: Observable<Movie[]> = of([]);
+      if (missingActors.length) {
+        const searchObservables = missingActors.map(name =>
+          this.http.get<{ results: Movie[] }>(`${this.baseUrl}/search/movie`, {
+            headers: this.defaultHeaders,
+            params: new HttpParams()
+              .set('language', 'es-ES')
+              .set('query', name)
+              .set('page', page)
+          })
+        );
+
+        searchMovies$ = forkJoin(searchObservables).pipe(
+          map(results => results.flatMap(r => r.results))
+        );
+      }
+
+      // 4️⃣ Combinar resultados
+      return forkJoin([discover$, actorDiscover$, searchMovies$]).pipe(
+        map(([discoverRes, actorRes, searchRes]) => {
+          const allMovies = [
+            ...(discoverRes.results || []),
+            ...(actorRes.results || []),
+            ...(searchRes || [])
+          ];
+          const uniqueMovies = Array.from(new Map(allMovies.map(m => [m.id, m])).values());
+          console.log("🎬 Resultado final filtrado:", uniqueMovies);
+
+          return {
+            results: uniqueMovies,
+            total_pages: Math.max(discoverRes.total_pages, actorRes.total_pages)
+          };
+        })
+      );
+    })
+  );
 }
+
+
 
 
 
