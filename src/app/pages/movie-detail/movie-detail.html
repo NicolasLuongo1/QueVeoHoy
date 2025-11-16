@@ -2,7 +2,6 @@
   @let movieHtml = movie();
   
   <div class="movie-detail-container">
-    <app-movie-header />
 
     <app-movie-banner 
       [backdropUrl]="getBackdropUrl(movieHtml?.backdrop_path ?? null)"
@@ -11,7 +10,11 @@
 
     <div class="content-wrapper">
       <div class="left-column">
-        <app-movie-description [overview]="movieHtml?.overview ?? ''" />
+        <app-movie-description 
+          [trailer]="getTrailer()"
+          [streamingPlatforms]="getStreamingPlatforms()"
+          [getProviderLogoUrl]="client.getProviderLogoUrl.bind(client)"
+          (trailerClick)="openTrailer()" />
 
         <app-movie-cast 
           [cast]="getCast()"

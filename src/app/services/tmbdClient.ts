@@ -1,11 +1,13 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DiscoverMovieParams, DiscoverMovieResponse, Movie } from '../models/movie';
-import { Categories } from '../models/Categories';
+import { DiscoverMovieParams, DiscoverMovieDTO, MovieDTO } from '../models/movieDTO';
+import { CategoriesDTO } from '../models/CategoriesDTO';
 import { environment } from '../enviroments/enviroment';
 import { MovieDetailDTO } from '../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
+import { MovieVideosDTO } from '../models/detail/MovieVideosDTO';
+import { MovieWatchProvidersDTO } from '../models/detail/MovieWatchProvidersDTO';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -34,7 +36,7 @@ export class TMDBClient {
   // =====================================================================================
   // 🔥 DISCOVER MOVIES (Filtrado por categorías, actores, etc)
   // =====================================================================================
-  discoverMovies(params: DiscoverMovieParams = {}): Observable<DiscoverMovieResponse> {
+  discoverMovies(params: DiscoverMovieParams = {}): Observable<DiscoverMovieDTO> {
     let httpParams = new HttpParams();
 
     for (const [key, value] of Object.entries(params)) {
@@ -43,7 +45,7 @@ export class TMDBClient {
       }
     }
 
-    return this.http.get<DiscoverMovieResponse>(`${this.baseUrl}/discover/movie`, {
+    return this.http.get<DiscoverMovieDTO>(`${this.baseUrl}/discover/movie`, {
       headers: this.defaultHeaders,
       params: httpParams
     });
@@ -78,10 +80,28 @@ export class TMDBClient {
   }
 
   // =====================================================================================
+  // 🔥 MOVIE VIDEOS (TRAILERS)
+  // =====================================================================================
+  getMovieVideos(movieId: number): Observable<MovieVideosDTO> {
+    return this.http.get<MovieVideosDTO>(`${this.baseUrl}/movie/${movieId}/videos`, {
+      headers: this.defaultHeaders
+    });
+  }
+
+  // =====================================================================================
+  // 🔥 MOVIE WATCH PROVIDERS (STREAMING PLATFORMS)
+  // =====================================================================================
+  getMovieWatchProviders(movieId: number): Observable<MovieWatchProvidersDTO> {
+    return this.http.get<MovieWatchProvidersDTO>(`${this.baseUrl}/movie/${movieId}/watch/providers`, {
+      headers: this.defaultHeaders
+    });
+  }
+
+  // =====================================================================================
   // 🔥 CATEGORY LIST
   // =====================================================================================
-  getCategories(): Observable<Categories> {
-    return this.http.get<Categories>(`${this.baseUrl}/genre/movie/list`, {
+  getCategories(): Observable<CategoriesDTO> {
+    return this.http.get<CategoriesDTO>(`${this.baseUrl}/genre/movie/list`, {
       headers: this.defaultHeaders
     });
   }
@@ -114,6 +134,22 @@ export class TMDBClient {
   getProfileUrl(profilePath: string | null | undefined, size: string = 'w185'): string {
     if (!profilePath) return 'assets/no-image.png';
     return `${this.imgBaseUrl}${size}${profilePath}`;
+  }
+
+  // =====================================================================================
+  // 🔥 VIDEO HELPER METHODS
+  // =====================================================================================
+  getTrailerUrl(videoKey: string): string {
+    return `https://www.youtube.com/watch?v=${videoKey}`;
+  }
+
+  getTrailerEmbedUrl(videoKey: string): string {
+    return `https://www.youtube.com/embed/${videoKey}`;
+  }
+
+  getProviderLogoUrl(logoPath: string): string {
+    if (!logoPath) return 'assets/no-image.png';
+    return `${this.imgBaseUrl}w92${logoPath}`;
   }
 
   // =====================================================================================

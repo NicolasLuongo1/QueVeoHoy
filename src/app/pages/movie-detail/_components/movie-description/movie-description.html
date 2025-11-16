@@ -1,5 +1,32 @@
 <section class="content-section">
-  <h2 class="section-title">Descripción</h2>
-  <p class="description-text">{{ overview() || 'Descripción no disponible' }}</p>
+  @if (trailer()) {
+    <div class="trailer-section">
+      <h2 class="section-title">Trailer</h2>
+      <button class="trailer-button" (click)="onTrailerClick()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5V19L19 12L8 5Z"/>
+        </svg>
+        Ver Trailer
+      </button>
+    </div>
+  }
+
+
+  @if (streamingPlatforms().length > 0) {
+    <div class="platforms-section">
+      <h2 class="section-title">Dónde Ver</h2>
+      <div class="platforms-container">
+        @for (platform of streamingPlatforms(); track platform.provider_id) {
+          <div class="platform-item">
+            <img 
+              [src]="getProviderLogoUrl()(platform.logo_path)" 
+              [alt]="platform.provider_name"
+              class="platform-logo">
+            <span class="platform-name">{{ platform.provider_name }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </section>
 
