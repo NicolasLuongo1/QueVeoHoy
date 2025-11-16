@@ -1,11 +1,12 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { DiscoverMovieParams, DiscoverMovieResponse, Movie } from '../models/movie';
 import { Categories } from '../models/Categories';
 import { environment } from '../enviroments/enviroment';
 import { MovieDetailDTO } from '../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
+import { forkJoin, map, switchMap, tap  } from 'rxjs';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -25,7 +26,7 @@ export class TMDBClient {
   });
 
   // 🟩 Signal con categorías cargadas desde TMDB
-  readonly categories = signal<string[]>([]);
+readonly categories = signal<{ id: number; name: string }[]>([]);
 
   constructor() {
     this.loadCategories();
@@ -80,23 +81,22 @@ export class TMDBClient {
   // =====================================================================================
   // 🔥 CATEGORY LIST
   // =====================================================================================
-  getCategories(): Observable<Categories> {
-    return this.http.get<Categories>(`${this.baseUrl}/genre/movie/list`, {
-      headers: this.defaultHeaders
-    });
-  }
+getCategories(): Observable<Categories> {
+  return this.http.get<Categories>(`${this.baseUrl}/genre/movie/list`, {
+    headers: this.defaultHeaders,
+    params: new HttpParams().set('language', 'es-ES')
+  });
+}
 
   // Guarda categorías en el signal automático
-  private loadCategories() {
-    this.getCategories().subscribe({
-      next: (res) => {
-        const genreNames = res.genres.map(g => g.name);
-        this.categories.set(genreNames);
-        console.log('TMDB categorías cargadas:', genreNames);
-      },
-      error: (e) => console.error('Error cargando categorías TMDB', e)
-    });
-  }
+private loadCategories() {
+  this.getCategories().subscribe({
+    next: (res) => {
+      this.categories.set(res.genres); // ✔ ahora sí matchea el tipo
+    },
+    error: (e) => console.error('Error cargando categorías TMDB', e)
+  });
+}
 
   // =====================================================================================
   // 🔥 IMAGE HELPER
@@ -120,17 +120,72 @@ export class TMDBClient {
   //  GEMINI SERVICE
   // ====================================================================================
 
-  searchMoviesWithFilters(filters: { genres: string[]; actors: string[] }) {
+searchMoviesWithFilters(filters: { genres: string[]; actors: string[] }) {
 
-  const params: any = {
-    api_key: environment.tmdbApiKey,
-    language: 'es-ES',
-    query: filters.actors?.[0] ?? filters.genres?.[0] ?? '', // fallback
-  };
+  // 🔹 LOG 1 — Qué devolvió Gemini
+  console.log("🔍 Filtros recibidos desde Gemini:", filters);
 
-  return this.http.get<{ results: any[]; total_pages: number }>(
-    `https://api.themoviedb.org/3/search/movie`,
-    { params }
+  // 🔹 LOG 2 — Categorías ya cargadas de TMDB
+  console.log("🎭 Categorías cargadas desde TMDB:", this.categories());
+
+  // 🔹 LOG 3 — Géneros detectados por Gemini
+  console.log("🎭 Géneros pedidos por Gemini:", filters.genres);
+
+  // 1) Mapeo de géneros nombre → id
+  const genreMap = new Map(
+    this.categories().map(cat => [cat.name.toLowerCase().trim(), cat.id])
   );
+
+  // Normalizamos también los géneros que devuelve Gemini
+  const normalizedGenres = filters.genres.map(g => g.toLowerCase().trim());
+  const genreIds = normalizedGenres
+    .map(g => genreMap.get(g))
+    .filter(id => id !== undefined);
+
+  // 🔹 LOG 4 — IDs de géneros encontrados
+  console.log("🎯 IDs de géneros detectados:", genreIds);
+
+  // Normalizamos actores
+  const normalizedActors = filters.actors.map(a => a.toLowerCase().trim());
+  // 🔹 LOG 5 — Actores normalizados
+  console.log("🧑‍🎤 Actores normalizados:", normalizedActors);
+
+  // 2) Preparar búsqueda de actores
+const actorRequests = filters.actors.length
+  ? filters.actors.map(actor => this.http.get<any>(`${this.baseUrl}/search/person`, {
+      headers: this.defaultHeaders,
+      params: new HttpParams().set('query', actor)
+    }))
+  : [];
+
+return (actorRequests.length ? forkJoin(actorRequests) : of([])).pipe(
+  map(actorResponses => {
+    const actorIds = actorResponses
+      .map((r: any) => r.results?.[0]?.id)
+      .filter((id: any) => id);
+    console.log("🧑‍🎤 IDs de actores encontrados en TMDB:", actorIds);
+    return { genreIds, actorIds };
+  }),
+  switchMap(({ genreIds, actorIds }) => {
+    let params = new HttpParams()
+      .set('language', 'es-ES')
+      .set('page', 1);
+
+    if (genreIds.length > 0) params = params.set('with_genres', genreIds.join(','));
+    if (actorIds.length > 0) params = params.set('with_people', actorIds.join(','));
+
+    console.log("📡 Parámetros enviados a TMDB Discover:", params.toString());
+
+    return this.http.get<{ results: any[]; total_pages: number }>(
+      `${this.baseUrl}/discover/movie`,
+      { headers: this.defaultHeaders, params }
+    );
+  })
+);
 }
+
+
+
+
+
 }

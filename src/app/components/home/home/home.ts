@@ -83,15 +83,19 @@ export class HomeComponent {
 applyGeminiFilters(filters: { genres: string[]; actors: string[] }) {
   this.loading.set(true);
 
+  console.log('🔍 Filtros que aplicamos:', filters);
+
   this.tmdb.searchMoviesWithFilters(filters).subscribe({
     next: res => {
+      console.log('🎬 Respuesta de TMDB Discover:', res);
+
       this.movies.set(res.results);
       this.page.set(1);
       this.totalPages.set(res.total_pages);
       this.loading.set(false);
     },
     error: err => {
-      console.error('Error filtrando películas:', err);
+      console.error('❌ Error filtrando películas:', err);
       this.loading.set(false);
     }
   });

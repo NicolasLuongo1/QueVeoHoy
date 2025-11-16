@@ -1,13 +1,8 @@
 <div class="home-container">
-  <header>
-    <h1>Bienvenido a QueVeoHoy?</h1>
-    <button (click)="logout()">🚪 Cerrar Sesión</button>
-  </header>
-
   <hr>
 
   <h2>Películas Populares</h2>
-  <gemini-chat></gemini-chat>
+  <gemini-chat (filtersEvent)="applyGeminiFilters($event)"></gemini-chat>
 
   <div class="movies-grid">
     @for (movie of movies(); track movie.id) {
