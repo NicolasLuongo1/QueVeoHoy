@@ -1,0 +1,16 @@
+<section class="banner-section" [style.background-image]="'url(' + backdropUrl() + ')'">
+  <div class="banner-overlay">
+    <div class="banner-content">
+      <h1 class="movie-title">{{ title() }}</h1>
+      <p class="movie-description">{{ overview() || 'Descripción no disponible' }}</p>
+      <div class="banner-actions">
+        <button class="action-button" aria-label="Me gusta">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 17C10 17 3 12 3 7C3 4.79 4.79 3 7 3C8.5 3 10 4 10 4C10 4 11.5 3 13 3C15.21 3 17 4.79 17 7C17 12 10 17 10 17Z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+

@@ -24,9 +24,9 @@ export interface DiscoverMovieParams {
 /**
  * Respuesta de la API de TMDB para discover/movie
  */
-export interface DiscoverMovieResponse {
+export interface DiscoverMovieDTO {
   page: number;
-  results: Movie[];
+  results: MovieDTO[];
   total_pages: number;
   total_results: number;
 }
@@ -34,7 +34,7 @@ export interface DiscoverMovieResponse {
 /**
  * Modelo de película de TMDB
  */
-export interface Movie {
+export interface MovieDTO {
   adult: boolean;
   backdrop_path: string | null;
   genre_ids: number[];

@@ -37,6 +37,53 @@ Gemini analiza la intención, devuelve categorías y actores, y la app muestra d
 
 ---
 
+## 📁 Estructura de páginas y componentes
+
+```
+./src/app/pages
+    /movie-detail
+        /_components
+            /movie-header
+                movie-header.ts
+                movie-header.html
+                movie-header.css
+            /movie-banner
+                movie-banner.ts
+                movie-banner.html
+                movie-banner.css
+            /movie-description
+                movie-description.ts
+                movie-description.html
+                movie-description.css
+            /movie-cast
+                movie-cast.ts
+                movie-cast.html
+                movie-cast.css
+            /movie-reviews
+                movie-reviews.ts
+                movie-reviews.html
+                movie-reviews.css
+            /movie-info-sidebar
+                movie-info-sidebar.ts
+                movie-info-sidebar.html
+                movie-info-sidebar.css
+        movie-detail.ts
+        movie-detail.html
+        movie-detail.css
+```
+
+### Componentes modulares
+
+La página de detalle de película (`movie-detail`) está estructurada de forma modular:
+
+- **`movie-header`**: Header con logo y acciones de navegación
+- **`movie-banner`**: Banner principal con imagen de fondo, título y botones de acción
+- **`movie-description`**: Sección de descripción de la película
+- **`movie-cast`**: Sección de reparto con scroll horizontal
+- **`movie-reviews`**: Sección de reseñas de usuarios
+- **`movie-info-sidebar`**: Barra lateral con información adicional (año, idiomas, calificaciones, géneros, director, música)
+
+
 ## 🚀 Instalación
 
 1. Clonar el repositorio:  
