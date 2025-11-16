@@ -1,11 +1,12 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { DiscoverMovieParams, DiscoverMovieDTO, MovieDTO } from '../models/movieDTO';
 import { CategoriesDTO } from '../models/CategoriesDTO';
 import { environment } from '../enviroments/enviroment';
 import { MovieDetailDTO } from '../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
+import { forkJoin, map, switchMap, tap  } from 'rxjs';
 import { MovieVideosDTO } from '../models/detail/MovieVideosDTO';
 import { MovieWatchProvidersDTO } from '../models/detail/MovieWatchProvidersDTO';
 
@@ -26,16 +27,13 @@ export class TMDBClient {
     Authorization: `Bearer ${this.accessToken}`
   });
 
-  // 🟩 Signal con categorías cargadas desde TMDB
-  readonly categories = signal<string[]>([]);
+  // Signal con categorías cargadas desde TMDB
+readonly categories = signal<{ id: number; name: string }[]>([]);
 
   constructor() {
     this.loadCategories();
   }
 
-  // =====================================================================================
-  // 🔥 DISCOVER MOVIES (Filtrado por categorías, actores, etc)
-  // =====================================================================================
   discoverMovies(params: DiscoverMovieParams = {}): Observable<DiscoverMovieDTO> {
     let httpParams = new HttpParams();
 
@@ -51,9 +49,6 @@ export class TMDBClient {
     });
   }
 
-  // =====================================================================================
-  // 🔥 POPULAR MOVIES
-  // =====================================================================================
   getPopularMovies(page: number = 1): Observable<any> {
     return this.http.get(`${this.baseUrl}/movie/popular`, {
       headers: this.defaultHeaders,
@@ -61,66 +56,49 @@ export class TMDBClient {
     });
   }
 
-  // =====================================================================================
-  // 🔥 MOVIE DETAILS
-  // =====================================================================================
   getMovieDetail(movieId: number): Observable<MovieDetailDTO> {
     return this.http.get<MovieDetailDTO>(`${this.baseUrl}/movie/${movieId}`, {
       headers: this.defaultHeaders
     });
   }
 
-  // =====================================================================================
-  // 🔥 MOVIE CREDITS (CAST & CREW)
-  // =====================================================================================
   getMovieCredits(movieId: number): Observable<MovieCreditsDTO> {
     return this.http.get<MovieCreditsDTO>(`${this.baseUrl}/movie/${movieId}/credits`, {
       headers: this.defaultHeaders
     });
   }
 
-  // =====================================================================================
-  // 🔥 MOVIE VIDEOS (TRAILERS)
-  // =====================================================================================
   getMovieVideos(movieId: number): Observable<MovieVideosDTO> {
     return this.http.get<MovieVideosDTO>(`${this.baseUrl}/movie/${movieId}/videos`, {
       headers: this.defaultHeaders
     });
   }
 
-  // =====================================================================================
-  // 🔥 MOVIE WATCH PROVIDERS (STREAMING PLATFORMS)
-  // =====================================================================================
   getMovieWatchProviders(movieId: number): Observable<MovieWatchProvidersDTO> {
     return this.http.get<MovieWatchProvidersDTO>(`${this.baseUrl}/movie/${movieId}/watch/providers`, {
       headers: this.defaultHeaders
     });
   }
 
-  // =====================================================================================
-  // 🔥 CATEGORY LIST
-  // =====================================================================================
-  getCategories(): Observable<CategoriesDTO> {
-    return this.http.get<CategoriesDTO>(`${this.baseUrl}/genre/movie/list`, {
-      headers: this.defaultHeaders
-    });
-  }
+ 
+getCategories(): Observable<CategoriesDTO> {
+  return this.http.get<CategoriesDTO>(`${this.baseUrl}/genre/movie/list`, {
+    headers: this.defaultHeaders,
+    params: new HttpParams().set('language', 'es-ES')
+  });
+}
 
   // Guarda categorías en el signal automático
-  private loadCategories() {
-    this.getCategories().subscribe({
-      next: (res) => {
-        const genreNames = res.genres.map(g => g.name);
-        this.categories.set(genreNames);
-        console.log('TMDB categorías cargadas:', genreNames);
-      },
-      error: (e) => console.error('Error cargando categorías TMDB', e)
-    });
-  }
+private loadCategories() {
+  this.getCategories().subscribe({
+    next: (res) => {
+      this.categories.set(res.genres); // ✔ ahora sí matchea el tipo
+    },
+    error: (e) => console.error('Error cargando categorías TMDB', e)
+  });
+}
 
-  // =====================================================================================
-  // 🔥 IMAGE HELPER
-  // =====================================================================================
+
   getImageUrl(posterPath: string | null | undefined, size: string = 'w500'): string {
     if (!posterPath) return 'assets/no-image.png';
     return `${this.imgBaseUrl}${size}${posterPath}`;
@@ -136,9 +114,7 @@ export class TMDBClient {
     return `${this.imgBaseUrl}${size}${profilePath}`;
   }
 
-  // =====================================================================================
-  // 🔥 VIDEO HELPER METHODS
-  // =====================================================================================
+ 
   getTrailerUrl(videoKey: string): string {
     return `https://www.youtube.com/watch?v=${videoKey}`;
   }
@@ -156,17 +132,116 @@ export class TMDBClient {
   //  GEMINI SERVICE
   // ====================================================================================
 
-  searchMoviesWithFilters(filters: { genres: string[]; actors: string[] }) {
+searchMoviesWithFilters(
+  filters: { genres: string[]; actors: string[] },
+  page: number = 1
+): Observable<{ results: MovieDTO[]; total_pages: number }> {
 
-  const params: any = {
-    api_key: environment.tmdbApiKey,
-    language: 'es-ES',
-    query: filters.actors?.[0] ?? filters.genres?.[0] ?? '', // fallback
-  };
+  const genreMap = new Map(
+    this.categories().map(cat => [cat.name.toLowerCase().trim(), cat.id])
+  );
+  const genreIds: number[] = filters.genres
+    .map(g => genreMap.get(g.toLowerCase().trim()))
+    .filter((id): id is number => !!id);
 
-  return this.http.get<{ results: any[]; total_pages: number }>(
-    `https://api.themoviedb.org/3/search/movie`,
-    { params }
+  const normalizedActors: string[] = filters.actors.map(a => a.toLowerCase().trim());
+
+  const actorRequests = normalizedActors.length
+    ? normalizedActors.map(actor =>
+        this.http.get<{ results: { id: number }[] }>(`${this.baseUrl}/search/person`, {
+          headers: this.defaultHeaders,
+          params: new HttpParams().set('query', actor)
+        })
+      )
+    : [];
+
+  return (actorRequests.length ? forkJoin(actorRequests) : of([])).pipe(
+    switchMap(actorResponses => {
+      const actorIds: number[] = actorResponses
+        .map(res => res.results?.[0]?.id)
+        .filter((id): id is number => !!id);
+
+      const missingActors = normalizedActors.filter((_, i) => !actorIds[i]);
+
+      // Determinar si ignoramos categorías
+      const ignoreGenres = actorIds.length > 0 || missingActors.length > 0;
+
+      let discover$: Observable<{ results: MovieDTO[]; total_pages: number }> = of({ results: [], total_pages: 1 });
+      if (!ignoreGenres && genreIds.length > 0) {
+        const discoverParams = new HttpParams()
+          .set('language', 'es-ES')
+          .set('page', page)
+          .set('with_genres', genreIds.join(','));
+
+        discover$ = this.http.get<{ results: MovieDTO[]; total_pages: number }>(
+          `${this.baseUrl}/discover/movie`,
+          { headers: this.defaultHeaders, params: discoverParams }
+        );
+      }
+
+      let actorDiscover$: Observable<{ results: MovieDTO[]; total_pages: number }> = of({ results: [], total_pages: 1 });
+      if (actorIds.length > 0) {
+        const discoverParams = new HttpParams()
+          .set('language', 'es-ES')
+          .set('page', page)
+          .set('with_people', actorIds.join(','));
+
+        actorDiscover$ = this.http.get<{ results: MovieDTO[]; total_pages: number }>(
+          `${this.baseUrl}/discover/movie`,
+          { headers: this.defaultHeaders, params: discoverParams }
+        ).pipe(
+          switchMap(discoverRes => {
+            const creditRequests = discoverRes.results.map(movie =>
+              this.http.get<{ cast: { id: number }[] }>(`${this.baseUrl}/movie/${movie.id}/credits`, {
+                headers: this.defaultHeaders
+              }).pipe(
+                map(credits => ({ movie, hasActor: credits.cast.some(c => actorIds.includes(c.id)) }))
+              )
+            );
+            return forkJoin(creditRequests).pipe(
+              map(results => ({
+                results: results.filter(r => r.hasActor).map(r => r.movie),
+                total_pages: discoverRes.total_pages
+              }))
+            );
+          })
+        );
+      }
+
+      let searchMovies$: Observable<MovieDTO[]> = of([]);
+      if (missingActors.length) {
+        const searchObservables = missingActors.map(name =>
+          this.http.get<{ results: MovieDTO[] }>(`${this.baseUrl}/search/movie`, {
+            headers: this.defaultHeaders,
+            params: new HttpParams()
+              .set('language', 'es-ES')
+              .set('query', name)
+              .set('page', page)
+          })
+        );
+
+        searchMovies$ = forkJoin(searchObservables).pipe(
+          map(results => results.flatMap(r => r.results))
+        );
+      }
+
+      return forkJoin([discover$, actorDiscover$, searchMovies$]).pipe(
+        map(([discoverRes, actorRes, searchRes]) => {
+          const allMovies = [
+            ...(discoverRes.results || []),
+            ...(actorRes.results || []),
+            ...(searchRes || [])
+          ];
+          const uniqueMovies = Array.from(new Map(allMovies.map(m => [m.id, m])).values());
+
+          return {
+            results: uniqueMovies,
+            total_pages: Math.max(discoverRes.total_pages, actorRes.total_pages)
+          };
+        })
+      );
+    })
   );
 }
+
 }
