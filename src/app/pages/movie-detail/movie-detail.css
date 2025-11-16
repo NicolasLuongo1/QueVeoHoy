@@ -2,15 +2,21 @@
   min-height: 100vh;
   background-color: #000;
   color: #fff;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .content-wrapper {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 3rem 2rem;
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 3rem;
+  box-sizing: border-box;
 }
 
 .left-column {
