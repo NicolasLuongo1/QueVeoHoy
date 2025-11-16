@@ -2,13 +2,29 @@
   (Reemplaza el contenido de tu tmdb-login.css)
 */
 :host {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh; 
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative; 
+  position: relative;
   overflow: hidden;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+tmdb-login {
+  display: block;
+  height: 100%;
 }
 
 * {
@@ -18,17 +34,14 @@
 /* --- 1. Fondo (El fondo borroso y los splashes pueden quedar igual) --- */
 .login-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop');
+  inset: 0; /* reemplaza 4 propiedades */
+  background-image: url('/logo-qvh.png');
   background-size: cover;
   background-position: center;
-  filter: blur(4px) brightness(0.6); /* <-- Más oscuro */
+  background-repeat: no-repeat;
+  filter: blur(4px) brightness(0.6);
   z-index: -2;
 }
-
 .splash {
   position: absolute;
   width: 40vw;
