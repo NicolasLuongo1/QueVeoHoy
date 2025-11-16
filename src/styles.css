@@ -34,3 +34,11 @@ app-root {
   max-width: 100vw;
   overflow-x: hidden;
 }
+
+:root {
+  --header-height: 80px;
+}
+
+main {
+  margin-top: var(--header-height);
+}

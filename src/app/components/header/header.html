@@ -1,9 +1,14 @@
-<header class="header">
-  <div class="header-content">
-    <h1 class="logo">🎬 ¿Qué Véo Hoy?</h1>
+@let logged = isLoggedIn();
 
-    <button class="logout-btn" (click)="logout()">
-      <span>Cerrar sesión</span>
-    </button>
-  </div>
-</header>
+@if (logged) {
+  <header class="header">
+    <h2>¿Que Veo Hoy?</h2>
+<img src="/logo-qvh.png" class="logo" alt="Logo" />
+
+    <nav class="navbar">
+      <a routerLink="/home">Inicio</a>
+      <a routerLink="/favorites">Favoritos</a>
+      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    </nav>
+  </header>
+}

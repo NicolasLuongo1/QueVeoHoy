@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../enviroments/enviroment';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +12,14 @@ export class AuthService {
   private readonly SESSION_KEY = 'tmdb_session_id';
   private readonly ACCOUNT_KEY = 'tmdb_account_id'; 
 
-  constructor(private http: HttpClient) {}
+    //Señal para saber si el usuario está logueado
+  isLoggedIn = signal<boolean>(false);
+
+  constructor(private http: HttpClient) {
+    // Si hay una sesión previa → estamos logueados
+    const hasSession = !!localStorage.getItem(this.SESSION_KEY);
+    this.isLoggedIn.set(hasSession);
+  }
 
   // Guardamos el "session_id" en localStorage
   private saveSessionId(sessionId: string) {
@@ -36,9 +43,10 @@ export class AuthService {
 
   // Logout para eliminar datos del localStorage
   logout() {
-    localStorage.removeItem(this.SESSION_KEY);
-    localStorage.removeItem(this.ACCOUNT_KEY); 
-  }
+  localStorage.removeItem(this.SESSION_KEY);
+  localStorage.removeItem(this.ACCOUNT_KEY);
+  this.isLoggedIn.set(false);
+}
 
   // Creaamos el request token
   createRequestToken() {
@@ -71,6 +79,9 @@ export class AuthService {
 
     this.saveSessionId(sessionId);
     this.saveAccountId(accountId.toString()); // Guardamos el ID de la cuenta
+
+    // Marcar como logueado
+    this.isLoggedIn.set(true);
 
     return { sessionId, accountId };
   }

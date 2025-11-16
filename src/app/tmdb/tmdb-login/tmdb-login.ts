@@ -17,6 +17,9 @@ export class TmdbLogin {
   message = signal('');
   loading = signal(false);
 
+  // Signal para controlar el estado global de login
+  isLoggedIn = signal(false);
+
   // ✅ Inyectar Router
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -62,5 +65,10 @@ export class TmdbLogin {
 
   register() {
     window.open('https://www.themoviedb.org/signup', '_blank');
+  }
+
+    logout() {
+    this.isLoggedIn.set(false); // ✅ Desloguear
+    // si necesitas borrar session_id localStorage, etc.
   }
 }

@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { TMDBClient } from './services/tmbdClient';
 import { Header } from "./components/header/header";
+import { AuthService } from './tmdb/auth-service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,8 @@ import { Header } from "./components/header/header";
 })
 export class App {
   private readonly tmdbClient = inject(TMDBClient);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.loadSampleMovies();
@@ -43,6 +46,11 @@ export class App {
       }
     })
   }
+
+  onLogout() {
+  this.auth.logout();
+  this.router.navigate(['/']); // o /login
+}
 
   protected readonly title = signal('QueVeoHoy');
 }
