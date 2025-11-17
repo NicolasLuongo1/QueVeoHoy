@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { DiscoverMovieParams, DiscoverMovieDTO, MovieDTO } from '../models/movieDTO';
 import { CategoriesDTO } from '../models/CategoriesDTO';
 import { environment } from '../enviroments/enviroment';
@@ -9,6 +9,8 @@ import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
 import { forkJoin, map, switchMap, tap  } from 'rxjs';
 import { MovieVideosDTO } from '../models/detail/MovieVideosDTO';
 import { MovieWatchProvidersDTO } from '../models/detail/MovieWatchProvidersDTO';
+import { TmdbLogin } from '../tmdb/tmdb-login/tmdb-login';
+
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -18,6 +20,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 export class TMDBClient {
 
   private readonly http = inject(HttpClient);
+  private readonly apiKey = environment.tmdbApiKey;
 
   private readonly baseUrl = TMDB_BASE_URL;
   private readonly accessToken = environment.tmdbAccessToken;
@@ -54,6 +57,26 @@ readonly categories = signal<{ id: number; name: string }[]>([]);
       headers: this.defaultHeaders,
       params: new HttpParams().set('page', page)
     });
+  }
+
+ getFavoriteMovies(page: number = 1): Observable<any> {
+ const sessionId = localStorage.getItem('session_id');
+ const accountId = localStorage.getItem('account_id');
+
+  if (!sessionId || !accountId) {
+    return throwError(() => new Error('Usuario no loggeado.'));
+  }
+    const params = new HttpParams()
+      .set('api_key', this.apiKey)
+      .set('session_id', sessionId!)
+      .set('language', 'es-ES')
+      .set('sort_by', 'created_at.desc')
+      .set('page', page.toString());
+
+    return this.http.get(
+      `${this.baseUrl}/account/${accountId}/favorite/movies`,
+      { params }
+    );
   }
 
   getMovieDetail(movieId: number): Observable<MovieDetailDTO> {
