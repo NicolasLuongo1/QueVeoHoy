@@ -133,115 +133,173 @@ private loadCategories() {
   // ====================================================================================
 
 searchMoviesWithFilters(
-  filters: { genres: string[]; actors: string[] },
+  filters: { genres: string[]; actors: string[]; text?: string; onlyTitles?: boolean },
   page: number = 1
 ): Observable<{ results: MovieDTO[]; total_pages: number }> {
 
+  const { genres, actors, text } = filters;
+
+  // 🔥 PRIORIDAD: si hay texto → usar búsqueda libre
+  if (text && text.trim().length > 0) {
+    const params = new HttpParams()
+      .set('language', 'es-ES')
+      .set('query', text)
+      .set('page', page);
+
+    return this.http.get<{ results: MovieDTO[]; total_pages: number }>(
+      `${this.baseUrl}/search/movie`,
+      { headers: this.defaultHeaders, params }
+    );
+  }
+
+  // Normalización
+  const normalizedGenres = genres.map(g => g.toLowerCase().trim());
+  const normalizedActors = actors.map(a => a.toLowerCase().trim());
+
+  // ----- Géneros -----
   const genreMap = new Map(
     this.categories().map(cat => [cat.name.toLowerCase().trim(), cat.id])
   );
-  const genreIds: number[] = filters.genres
-    .map(g => genreMap.get(g.toLowerCase().trim()))
+
+  const genreIds = normalizedGenres
+    .map(g => genreMap.get(g))
     .filter((id): id is number => !!id);
 
-  const normalizedActors: string[] = filters.actors.map(a => a.toLowerCase().trim());
 
-  const actorRequests = normalizedActors.length
-    ? normalizedActors.map(actor =>
-        this.http.get<{ results: { id: number }[] }>(`${this.baseUrl}/search/person`, {
-          headers: this.defaultHeaders,
-          params: new HttpParams().set('query', actor)
+  // ===============================
+  //    BÚSQUEDA CORREGIDA DE ACTORES
+  //     Devuelve: [{ name: string, id: number | null }]
+  // ===============================
+
+  const searchActorsByName = (names: string[]) => {
+    if (!names.length) return of<{ name: string; id: number | null }[]>([]);
+
+    const reqs = names.map(n =>
+      this.http.get<{ results: any[] }>(`${this.baseUrl}/search/person`, {
+        headers: this.defaultHeaders,
+        params: new HttpParams().set('query', n)
+      })
+    );
+
+    return forkJoin(reqs).pipe(
+      map(responses =>
+        responses.map((res, i) => {
+          const originalName = names[i];
+          const target = originalName.toLowerCase().trim();
+
+          if (!res.results?.length) return { name: originalName, id: null };
+
+          // exact
+          const exact = res.results.find(p => p.name.toLowerCase() === target);
+          if (exact) return { name: originalName, id: exact.id };
+
+          // strong
+          const strong = res.results.find(p =>
+            p.name.toLowerCase().includes(target)
+          );
+          if (strong) return { name: originalName, id: strong.id };
+
+          // popular fallback
+          const sorted = [...res.results].sort(
+            (a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)
+          );
+          return { name: originalName, id: sorted[0]?.id ?? null };
         })
       )
-    : [];
+    );
+  };
 
-  return (actorRequests.length ? forkJoin(actorRequests) : of([])).pipe(
-    switchMap(actorResponses => {
-      const actorIds: number[] = actorResponses
-        .map(res => res.results?.[0]?.id)
-        .filter((id): id is number => !!id);
 
-      const missingActors = normalizedActors.filter((_, i) => !actorIds[i]);
+  // ----- Discover por géneros -----
+  const discoverByGenres = (ids: number[]) => {
+    if (!ids.length) return of({ results: [], total_pages: 1 });
 
-      // Determinar si ignoramos categorías
-      const ignoreGenres = actorIds.length > 0 || missingActors.length > 0;
+    const params = new HttpParams()
+      .set('language', 'es-ES')
+      .set('page', page)
+      .set('with_genres', ids.join(','));
 
-      let discover$: Observable<{ results: MovieDTO[]; total_pages: number }> = of({ results: [], total_pages: 1 });
-      if (!ignoreGenres && genreIds.length > 0) {
-        const discoverParams = new HttpParams()
+    return this.http.get<{ results: MovieDTO[]; total_pages: number }>(
+      `${this.baseUrl}/discover/movie`,
+      { headers: this.defaultHeaders, params }
+    );
+  };
+
+  // ----- Discover por actores -----
+  const discoverByActors = (actorIds: number[]) => {
+    if (!actorIds.length) return of({ results: [], total_pages: 1 });
+
+    const params = new HttpParams()
+      .set('language', 'es-ES')
+      .set('page', page)
+      .set('with_people', actorIds.join(','));
+
+    return this.http.get<{ results: MovieDTO[]; total_pages: number }>(
+      `${this.baseUrl}/discover/movie`,
+      { headers: this.defaultHeaders, params }
+    );
+  };
+
+  // ----- Búsqueda por títulos cuando no encontramos actores -----
+  const searchMovieTitles = (titles: string[]) => {
+    if (!titles.length) return of<MovieDTO[]>([]);
+
+    const reqs = titles.map(t =>
+      this.http.get<{ results: MovieDTO[] }>(`${this.baseUrl}/search/movie`, {
+        headers: this.defaultHeaders,
+        params: new HttpParams()
           .set('language', 'es-ES')
+          .set('query', t)
           .set('page', page)
-          .set('with_genres', genreIds.join(','));
+      })
+    );
 
-        discover$ = this.http.get<{ results: MovieDTO[]; total_pages: number }>(
-          `${this.baseUrl}/discover/movie`,
-          { headers: this.defaultHeaders, params: discoverParams }
-        );
-      }
+    return forkJoin(reqs).pipe(map(arr => arr.flatMap(x => x.results)));
+  };
 
-      let actorDiscover$: Observable<{ results: MovieDTO[]; total_pages: number }> = of({ results: [], total_pages: 1 });
-      if (actorIds.length > 0) {
-        const discoverParams = new HttpParams()
-          .set('language', 'es-ES')
-          .set('page', page)
-          .set('with_people', actorIds.join(','));
 
-        actorDiscover$ = this.http.get<{ results: MovieDTO[]; total_pages: number }>(
-          `${this.baseUrl}/discover/movie`,
-          { headers: this.defaultHeaders, params: discoverParams }
-        ).pipe(
-          switchMap(discoverRes => {
-            const creditRequests = discoverRes.results.map(movie =>
-              this.http.get<{ cast: { id: number }[] }>(`${this.baseUrl}/movie/${movie.id}/credits`, {
-                headers: this.defaultHeaders
-              }).pipe(
-                map(credits => ({ movie, hasActor: credits.cast.some(c => actorIds.includes(c.id)) }))
-              )
-            );
-            return forkJoin(creditRequests).pipe(
-              map(results => ({
-                results: results.filter(r => r.hasActor).map(r => r.movie),
-                total_pages: discoverRes.total_pages
-              }))
-            );
-          })
-        );
-      }
+  // ===============================
+  //   ✔ LÓGICA PRINCIPAL
+  // ===============================
 
-      let searchMovies$: Observable<MovieDTO[]> = of([]);
-      if (missingActors.length) {
-        const searchObservables = missingActors.map(name =>
-          this.http.get<{ results: MovieDTO[] }>(`${this.baseUrl}/search/movie`, {
-            headers: this.defaultHeaders,
-            params: new HttpParams()
-              .set('language', 'es-ES')
-              .set('query', name)
-              .set('page', page)
-          })
-        );
+  return searchActorsByName(normalizedActors).pipe(
+    switchMap(actorSearchResults => {
 
-        searchMovies$ = forkJoin(searchObservables).pipe(
-          map(results => results.flatMap(r => r.results))
-        );
-      }
+      const actorIds = actorSearchResults
+        .filter(r => r.id !== null)
+        .map(r => r.id!) as number[];
 
-      return forkJoin([discover$, actorDiscover$, searchMovies$]).pipe(
-        map(([discoverRes, actorRes, searchRes]) => {
-          const allMovies = [
-            ...(discoverRes.results || []),
-            ...(actorRes.results || []),
-            ...(searchRes || [])
+      const missingActors = actorSearchResults
+        .filter(r => r.id === null)
+        .map(r => r.name);
+
+      const byGenres$ = discoverByGenres(genreIds);
+      const byActors$ = discoverByActors(actorIds);
+      const byTitles$ = searchMovieTitles(missingActors);
+
+      return forkJoin([byGenres$, byActors$, byTitles$]).pipe(
+        map(([genreRes, actorRes, titleRes]) => {
+
+          // union
+          const combined = [
+            ...genreRes.results,
+            ...actorRes.results,
+            ...titleRes
           ];
-          const uniqueMovies = Array.from(new Map(allMovies.map(m => [m.id, m])).values());
 
-          return {
-            results: uniqueMovies,
-            total_pages: Math.max(discoverRes.total_pages, actorRes.total_pages)
-          };
+          // únicos
+          const unique = Array.from(new Map(combined.map(m => [m.id, m])).values());
+
+          const total = Math.max(genreRes.total_pages, actorRes.total_pages);
+
+          return { results: unique, total_pages: total };
         })
       );
     })
   );
 }
+
+
+
 
 }

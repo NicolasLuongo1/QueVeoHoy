@@ -9,6 +9,16 @@
       (input)="onInputChange($event)"
       (keyup.enter)="sendPrompt()"
     />
+    <div class="toggle-container">
+  <label>
+    <input 
+      type="checkbox" 
+      [checked]="searchOnlyTitles()" 
+      (change)="toggleOnlyTitles($event)"
+    />
+    Buscar solo por títulos
+  </label>
+</div>
 
     <button class="send-btn" (click)="sendPrompt()" [disabled]="loading()">
       Buscar
