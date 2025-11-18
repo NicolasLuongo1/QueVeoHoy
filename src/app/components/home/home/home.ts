@@ -27,11 +27,15 @@ export class HomeComponent {
   totalPages = signal(0);
 
   // Filtros actuales
-  currentFilters = signal<{ genres: string[]; actors: string[] }>({ genres: [], actors: [] });
+currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boolean }>({
+  genres: [],
+  actors: [],
+  onlyTitles: false
+});
 
   // IDs de géneros y actores
   currentGenreIds: number[] = [];
-  currentActorIds: number[] = [];
+  currentActorIds: string[] = [];
 
   constructor() {
     // Solo cargar populares si NO hay filtros
@@ -82,24 +86,26 @@ export class HomeComponent {
     });
   }
 
-  applyGeminiFilters(filters: { genres: string[]; actors: string[] }) {
-    this.loading.set(true);
-    this.page.set(1);          // Reiniciamos página
-    this.movies.set([]);       // Limpiamos películas anteriores
-    this.currentFilters.set(filters);
+applyGeminiFilters(filters: { genres: string[]; actors: string[]; onlyTitles?: boolean }) {
+  this.loading.set(true);
+  this.page.set(1);
+  this.movies.set([]);
+  this.currentFilters.set(filters);
 
-    this.tmdb.searchMoviesWithFilters(filters, 1).subscribe({
+  // Si el usuario quiere SOLO títulos → texto = lo que escribió en el input
+  if (filters.onlyTitles) {
+    const freeText = filters.actors.join(" ").trim(); 
+    this.tmdb.searchMoviesWithFilters(
+      {
+        genres: [],
+        actors: [],
+        text: freeText
+      },
+      1
+    ).subscribe({
       next: res => {
-        this.movies.set(res.results);       // Reemplaza totalmente las películas
+        this.movies.set(res.results);
         this.totalPages.set(res.total_pages);
-
-        // Guardar IDs de géneros
-        const genreMap = new Map(this.tmdb.categories().map(c => [c.name.toLowerCase(), c.id]));
-        this.currentGenreIds = filters.genres
-          .map(g => genreMap.get(g.toLowerCase()))
-          .filter(id => id != null);
-
-        this.currentActorIds = []; // Si no se usan actorIds
         this.loading.set(false);
       },
       error: err => {
@@ -107,7 +113,31 @@ export class HomeComponent {
         this.loading.set(false);
       }
     });
+
+    return;
   }
+
+  const freeText = filters.actors.join(" ").trim();
+
+  this.tmdb.searchMoviesWithFilters(
+    {
+      genres: filters.genres,
+      actors: filters.actors,
+      text: freeText
+    },
+    1
+  ).subscribe({
+    next: res => {
+      this.movies.set(res.results);
+      this.totalPages.set(res.total_pages);
+      this.loading.set(false);
+    },
+    error: err => {
+      console.error(err);
+      this.loading.set(false);
+    }
+  });
+}
 
   logout() {
     this.auth.logout();

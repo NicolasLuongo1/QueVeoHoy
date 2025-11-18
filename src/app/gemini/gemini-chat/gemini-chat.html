@@ -9,6 +9,8 @@
       (input)="onInputChange($event)"
       (keyup.enter)="sendPrompt()"
     />
+    <div class="toggle-container">
+</div>
 
     <button class="send-btn" (click)="sendPrompt()" [disabled]="loading()">
       Buscar
@@ -19,12 +21,12 @@
     <p class="loading-message">⏳ Buscando recomendaciones...</p>
   }
 
-  <!--
+  
   @if (response()) {
     <div class="response-box">
       <h3>✨ Recomendación Inteligente</h3>
       <p>{{ response() }}</p>
     </div>
   }
-    -->
+  
 </div>
