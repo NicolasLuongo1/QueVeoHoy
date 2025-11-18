@@ -1,0 +1,30 @@
+@let movies = favoriteMovies(); 
+<div class="home-container">
+<h2>Mis Películas favoritas</h2>
+
+<div>
+    @if(loading()){
+     Cargando...
+    }
+</div>
+
+<div >
+    @if(favoriteMovies().length === 0 && !loading() ){
+     No tenés favoritos todavía.
+    }
+
+</div>
+
+<div >
+    @if(movies.length > 0){
+   <div class="movies-grid">
+    @for (movies of movies; track $index) {
+         <app-movie-card [movie]="movies"></app-movie-card>
+    }
+   </div>
+}
+</div>
+
+
+
+</div>

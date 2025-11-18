@@ -1,14 +1,16 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { DiscoverMovieParams, DiscoverMovieDTO, MovieDTO } from '../models/movieDTO';
 import { CategoriesDTO } from '../models/CategoriesDTO';
 import { environment } from '../enviroments/enviroment';
 import { MovieDetailDTO } from '../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
-import { forkJoin, map, switchMap, tap  } from 'rxjs';
+import { forkJoin, map, switchMap, tap } from 'rxjs';
 import { MovieVideosDTO } from '../models/detail/MovieVideosDTO';
 import { MovieWatchProvidersDTO } from '../models/detail/MovieWatchProvidersDTO';
+import { TmdbLogin } from '../tmdb/tmdb-login/tmdb-login';
+
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -18,6 +20,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 export class TMDBClient {
 
   private readonly http = inject(HttpClient);
+  private readonly apiKey = environment.tmdbApiKey;
 
   private readonly baseUrl = TMDB_BASE_URL;
   private readonly accessToken = environment.tmdbAccessToken;
@@ -28,7 +31,7 @@ export class TMDBClient {
   });
 
   // Signal con categorías cargadas desde TMDB
-readonly categories = signal<{ id: number; name: string }[]>([]);
+  readonly categories = signal<{ id: number; name: string }[]>([]);
 
   constructor() {
     this.loadCategories();
@@ -55,6 +58,46 @@ readonly categories = signal<{ id: number; name: string }[]>([]);
       params: new HttpParams().set('page', page)
     });
   }
+  markAsFavorite(movieId: number, favorite: boolean = true) {
+
+    const sessionId = localStorage.getItem('session_id');
+    const accountId = localStorage.getItem('account_id');
+
+    const url = `${this.baseUrl}/account/` + accountId + `/favorite`;
+
+    const params = new HttpParams()
+      .set('session_id', sessionId || '')
+      .set('api_key', this.apiKey);
+
+    const body = {
+      media_type: 'movie',
+      media_id: movieId,
+      favorite: favorite
+    };
+
+    return this.http.post(url, body, { params });
+
+  }
+
+  getFavoriteMovies(page: number = 1): Observable<any> {
+    const sessionId = localStorage.getItem('session_id');
+    const accountId = localStorage.getItem('account_id');
+
+    if (!sessionId || !accountId) {
+      return throwError(() => new Error('Usuario no loggeado.'));
+    }
+    const params = new HttpParams()
+      .set('api_key', this.apiKey)
+      .set('session_id', sessionId!)
+      .set('language', 'es-ES')
+      .set('sort_by', 'created_at.desc')
+      .set('page', page.toString());
+
+    return this.http.get(
+      `${this.baseUrl}/account/${accountId}/favorite/movies`,
+      { params }
+    );
+  }
 
   getMovieDetail(movieId: number): Observable<MovieDetailDTO> {
     return this.http.get<MovieDetailDTO>(`${this.baseUrl}/movie/${movieId}`, {
@@ -80,23 +123,23 @@ readonly categories = signal<{ id: number; name: string }[]>([]);
     });
   }
 
- 
-getCategories(): Observable<CategoriesDTO> {
-  return this.http.get<CategoriesDTO>(`${this.baseUrl}/genre/movie/list`, {
-    headers: this.defaultHeaders,
-    params: new HttpParams().set('language', 'es-ES')
-  });
-}
+
+  getCategories(): Observable<CategoriesDTO> {
+    return this.http.get<CategoriesDTO>(`${this.baseUrl}/genre/movie/list`, {
+      headers: this.defaultHeaders,
+      params: new HttpParams().set('language', 'es-ES')
+    });
+  }
 
   // Guarda categorías en el signal automático
-private loadCategories() {
-  this.getCategories().subscribe({
-    next: (res) => {
-      this.categories.set(res.genres); // ✔ ahora sí matchea el tipo
-    },
-    error: (e) => console.error('Error cargando categorías TMDB', e)
-  });
-}
+  private loadCategories() {
+    this.getCategories().subscribe({
+      next: (res) => {
+        this.categories.set(res.genres); // ✔ ahora sí matchea el tipo
+      },
+      error: (e) => console.error('Error cargando categorías TMDB', e)
+    });
+  }
 
 
   getImageUrl(posterPath: string | null | undefined, size: string = 'w500'): string {
@@ -114,7 +157,7 @@ private loadCategories() {
     return `${this.imgBaseUrl}${size}${profilePath}`;
   }
 
- 
+
   getTrailerUrl(videoKey: string): string {
     return `https://www.youtube.com/watch?v=${videoKey}`;
   }

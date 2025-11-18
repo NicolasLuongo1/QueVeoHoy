@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { AuthService } from '../auth-service';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { Router } from '@angular/router'; // ✅ Importar Router
+import { Router } from '@angular/router'; 
 
 @Component({
   selector: 'tmdb-login',
@@ -17,11 +17,11 @@ export class TmdbLogin {
   message = signal('');
   loading = signal(false);
 
-  // Signal para controlar el estado global de login
+
   isLoggedIn = signal(false);
 
-  // ✅ Inyectar Router
-  constructor(private authService: AuthService, private router: Router) {}
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   onUsernameChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -49,15 +49,19 @@ export class TmdbLogin {
 
       //  Crear sesión y obtener datos
       //  createSession para devolver el accountId y el sessionId 
-      await this.authService.createSession(token);
+      const sessionData = await this.authService.createSession(token);
       
+      //  Guardamos el session y account en localStorage
+      localStorage.setItem('session_id', sessionData.sessionId);
+      localStorage.setItem('account_id', sessionData.accountId.toString());
+
       this.message.set('¡Login exitoso! Redirigiendo...');
 
       this.router.navigate(['/home']);
 
     } catch (error) {
       this.message.set('Credenciales inválidas o error en el proceso.');
-      console.error('Error en el proceso de login.', error); 
+      console.error('Error en el proceso de login.', error);
     } finally {
       this.loading.set(false);
     }
@@ -67,8 +71,7 @@ export class TmdbLogin {
     window.open('https://www.themoviedb.org/signup', '_blank');
   }
 
-    logout() {
-    this.isLoggedIn.set(false); // ✅ Desloguear
-    // si necesitas borrar session_id localStorage, etc.
+  logout() {
+    this.isLoggedIn.set(false); 
   }
 }
