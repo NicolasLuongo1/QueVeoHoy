@@ -1,11 +1,12 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { TMDBClient } from '../../services/tmbdClient';
-import { MovieCard } from "../movie-card/movie-card/movie-card";
-import { GeminiChat } from "../../gemini/gemini-chat/gemini-chat";
+import { MovieCard } from '../../components/movie-card/movie-card/movie-card';
+
+
 
 @Component({
   selector: 'app-favorites',
-  imports: [MovieCard, GeminiChat],
+  imports: [MovieCard],
   templateUrl: './favorites.html',
   styleUrls: ['./favorites.css'],
 })
