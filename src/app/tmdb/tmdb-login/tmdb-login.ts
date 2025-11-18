@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { AuthService } from '../auth-service';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { Router } from '@angular/router'; // ✅ Importar Router
+import { Router } from '@angular/router'; 
 
 @Component({
   selector: 'tmdb-login',
@@ -17,10 +17,10 @@ export class TmdbLogin {
   message = signal('');
   loading = signal(false);
 
-  // Signal para controlar el estado global de login
+
   isLoggedIn = signal(false);
 
-  // ✅ Inyectar Router
+
   constructor(private authService: AuthService, private router: Router) { }
 
   onUsernameChange(event: Event) {
@@ -72,7 +72,6 @@ export class TmdbLogin {
   }
 
   logout() {
-    this.isLoggedIn.set(false); // ✅ Desloguear
-    // si necesitas borrar session_id localStorage, etc.
+    this.isLoggedIn.set(false); 
   }
 }
