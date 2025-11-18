@@ -1,0 +1,96 @@
+<div class="right-column">
+  <!-- Released Year -->
+  <section class="info-section">
+    <h3 class="info-title">Año de Lanzamiento</h3>
+    <p class="info-value">{{ releaseYear() || 'N/A' }}</p>
+  </section>
+
+  <!-- Available Languages -->
+  <section class="info-section">
+    <h3 class="info-title">Idiomas Disponibles</h3>
+    <div class="tags-container">
+      @for (lang of movie()?.spoken_languages ?? []; track lang.iso_639_1) {
+        <span class="tag">{{ lang.english_name }}</span>
+      }
+      @if (!movie()?.spoken_languages || (movie()?.spoken_languages?.length ?? 0) === 0) {
+        <span class="tag">{{ (movie()?.original_language ?? '').toUpperCase() || 'N/A' }}</span>
+      }
+    </div>
+  </section>
+
+  <!-- Ratings -->
+  <section class="info-section">
+    <h3 class="info-title">Calificaciones</h3>
+    <div class="rating-item">
+      <span class="rating-label">IMDb</span>
+      <div class="stars">
+        @for (star of [1,2,3,4,5]; track star) {
+          <svg [class.filled]="star <= rating()" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1L10.09 5.26L15 6.09L11.45 9.26L12.18 14.27L8 12.09L3.82 14.27L4.55 9.26L1 6.09L5.91 5.26L8 1Z" fill="currentColor" stroke="currentColor"/>
+          </svg>
+        }
+      </div>
+    </div>
+    <div class="rating-item">
+      <span class="rating-label">StreamVibe</span>
+      <div class="stars">
+        @for (star of [1,2,3,4,5]; track star) {
+          <svg [class.filled]="star <= rating()" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1L10.09 5.26L15 6.09L11.45 9.26L12.18 14.27L8 12.09L3.82 14.27L4.55 9.26L1 6.09L5.91 5.26L8 1Z" fill="currentColor" stroke="currentColor"/>
+          </svg>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Genres -->
+  <section class="info-section">
+    <h3 class="info-title">Géneros</h3>
+    <div class="tags-container">
+      @for (genre of movie()?.genres ?? []; track genre.id) {
+        <span class="tag">{{ genre.name }}</span>
+      }
+    </div>
+  </section>
+
+  <!-- Director -->
+  @if (director()) {
+    <section class="info-section">
+      <h3 class="info-title">Director</h3>
+      <div class="person-info">
+        <div class="person-avatar">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="20" fill="#333"/>
+            <circle cx="20" cy="15" r="6" fill="#666"/>
+            <path d="M8 32C8 26 13 22 20 22C27 22 32 26 32 32" fill="#666"/>
+          </svg>
+        </div>
+        <div class="person-details">
+          <p class="person-name">{{ director() }}</p>
+          <p class="person-location">Desde TMDB</p>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Music -->
+  @if (musicComposer()) {
+    <section class="info-section">
+      <h3 class="info-title">Música</h3>
+      <div class="person-info">
+        <div class="person-avatar">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="20" fill="#333"/>
+            <circle cx="20" cy="15" r="6" fill="#666"/>
+            <path d="M8 32C8 26 13 22 20 22C27 22 32 26 32 32" fill="#666"/>
+          </svg>
+        </div>
+        <div class="person-details">
+          <p class="person-name">{{ musicComposer() }}</p>
+          <p class="person-location">Desde TMDB</p>
+        </div>
+      </div>
+    </section>
+  }
+</div>
+

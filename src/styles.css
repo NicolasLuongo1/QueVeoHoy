@@ -1,1 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+  Establece el tema oscuro base para TODA la aplicación.
+  (Reemplaza el contenido de tu styles.css)
+*/
+
+/* Box-sizing global para evitar problemas de width con padding */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+body {
+  /* Fondo oscuro principal (casi negro) */
+  background-color: #121212; 
+  
+  /* Color de texto principal (gris claro) */
+  color: #e0e0e0; 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Asegura que el componente raíz ocupe toda la altura */
+app-root { 
+  height: 100%;
+  display: block;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+:root {
+  --header-height: 80px;
+}
+
+main {
+  margin-top: var(--header-height);
+}

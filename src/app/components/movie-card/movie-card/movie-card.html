@@ -1,0 +1,19 @@
+@if (movie) {
+  <div class="movie-card" (click)="navigateToDetail(movie.id)">
+
+    <img
+      class="poster"
+      [src]="getPosterUrl()"
+      [alt]="movie.title"
+    />
+
+    <div class="overlay">
+      <h3 class="title">{{ movie.title }}</h3>
+
+      @if (movie.vote_average) {
+        <span class="rating">⭐ {{ getRating() }}</span>
+      }
+    </div>
+
+  </div>
+}
