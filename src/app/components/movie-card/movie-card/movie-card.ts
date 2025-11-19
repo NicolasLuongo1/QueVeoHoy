@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TMDBClient } from '../../../services/tmbdClient';
+import { TmdbService } from '../../../services/tmdb-service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,7 +16,7 @@ export class MovieCard {
 
   protected readonly router = inject(Router)
 
-  private tmdb = inject(TMDBClient);
+  private tmdb = inject(TmdbService);
 
   // Devuelve URL del póster o un placeholder si no hay
   getPosterUrl(): string {

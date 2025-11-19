@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { promptBase } from './gemini-chat/promt';
 import { environment } from '../enviroments/enviroment';
-import { TMDBClient } from '../services/tmbdClient';
+import { TmdbService } from '../services/tmdb-service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import { TMDBClient } from '../services/tmbdClient';
 export class GeminiService {
 
   private readonly genAI = new GoogleGenerativeAI(environment.geminiApiKey);
-  private readonly tmdb = inject(TMDBClient);
+  private readonly tmdb = inject(TmdbService);
 
   async askGemini(prompt: string): Promise<string> {
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { TMDBClient } from './services/tmbdClient';
+import { TmdbService } from './services/tmdb-service';
 import { Header } from "./components/header/header";
 import { AuthService } from './tmdb/auth-service';
 
@@ -12,7 +12,7 @@ import { AuthService } from './tmdb/auth-service';
   styleUrl: './app.css'
 })
 export class App {
-  private readonly tmdbClient = inject(TMDBClient);
+  private readonly tmdbClient = inject(TmdbService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 

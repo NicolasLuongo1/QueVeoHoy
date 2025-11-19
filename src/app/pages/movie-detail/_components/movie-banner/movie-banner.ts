@@ -1,6 +1,7 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TMDBClient } from '../../../../services/tmbdClient';
+import { TmdbService } from '../../../../services/tmdb-service';
+import { MovieFavoriteService } from '../../../../services/movie-favorite-service';
 
 @Component({
   selector: 'app-movie-banner',
@@ -10,21 +11,20 @@ import { TMDBClient } from '../../../../services/tmbdClient';
   styleUrl: './movie-banner.css',
 })
 export class MovieBanner {
-  backdropUrl = input.required<string>();
-  title = input.required<string>();
-  overview = input<string | undefined>(undefined);
+  readonly backdropUrl = input.required<string>();
+  readonly title = input.required<string>();
+  readonly overview = input<string | undefined>(undefined);
 
-  movieId = input.required<number>();
-  isFavorite = signal(false);  
+  readonly movieId = input.required<number>();
+  protected readonly isFavorite = signal(false); 
+  protected readonly favoriteClient = inject(MovieFavoriteService);
 
-  constructor(private tmdbClient: TMDBClient) { }
-
- ngOnInit() {
+  constructor() {
     this.checkIfFavorite();
-  }
+   }
 
    checkIfFavorite() {
-    this.tmdbClient.getFavoriteMovies().subscribe({
+    this.favoriteClient.getFavoriteMovies().subscribe({
       next: (res) => {
         const exists = res.results?.some((m: any) => m.id === this.movieId());
         this.isFavorite.set(!!exists);
@@ -40,7 +40,7 @@ toggleFavorite() {
     this.addToFavorites();
     this.isFavorite.set(true);
   } else {
-    this.tmdbClient.markAsFavorite(this.movieId(), false)
+    this.favoriteClient.markAsFavorite(this.movieId(), false)
       .subscribe({
         next: () => this.isFavorite.set(false),
         error: (err) => console.error('Error removiendo favorito', err)
@@ -51,7 +51,7 @@ toggleFavorite() {
   addToFavorites() {
     const id = this.movieId();
 
-    this.tmdbClient.markAsFavorite(id, true).subscribe({
+    this.favoriteClient.markAsFavorite(id, true).subscribe({
       next: (res) => {
         console.log('Agregado a favoritos', res);
       },

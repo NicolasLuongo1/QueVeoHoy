@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TMDBClient } from '../../services/tmbdClient';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MovieDetailDTO } from '../../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO, Cast } from '../../models/detail/MovieCreditsDTO';
@@ -11,6 +10,7 @@ import { MovieDescription } from './_components/movie-description/movie-descript
 import { MovieCast } from './_components/movie-cast/movie-cast';
 import { MovieReviews } from './_components/movie-reviews/movie-reviews';
 import { MovieInfoSidebar } from './_components/movie-info-sidebar/movie-info-sidebar';
+import { MovieDetailService } from '../../services/movie-detail-service';
 
 @Component({
   selector: 'app-movie-detail',
@@ -26,7 +26,7 @@ import { MovieInfoSidebar } from './_components/movie-info-sidebar/movie-info-si
   styleUrl: './movie-detail.css',
 })
 export class MovieDetail {
-  protected readonly client = inject(TMDBClient)
+  protected readonly client = inject(MovieDetailService)
   protected readonly route = inject(ActivatedRoute)
   protected readonly router = inject(Router)
   protected movie = signal<MovieDetailDTO | null>(null)

@@ -50,8 +50,6 @@ tmdb-login {
   filter: blur(50px);
   z-index: -1;
 }
-.splash-purple { }
-.splash-blue { }
 
 .login-container {
   width: 100%;
@@ -126,7 +124,7 @@ button:nth-of-type(1):hover {
 button:nth-of-type(2) {
   background-color: transparent; 
   color: #b39ddb; 
-  border: 1px solid #7c4dff; /
+  border: 1px solid #7c4dff;
 }
 
 button:nth-of-type(2):hover {
