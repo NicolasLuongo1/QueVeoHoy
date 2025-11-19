@@ -1,28 +1,21 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { DiscoverMovieParams, DiscoverMovieDTO, MovieDTO } from '../models/movieDTO';
 import { CategoriesDTO } from '../models/CategoriesDTO';
 import { environment } from '../enviroments/enviroment';
-import { MovieDetailDTO } from '../models/detail/MovieDetailDTO';
-import { MovieCreditsDTO } from '../models/detail/MovieCreditsDTO';
-import { forkJoin, map, switchMap, tap } from 'rxjs';
-import { MovieVideosDTO } from '../models/detail/MovieVideosDTO';
-import { MovieWatchProvidersDTO } from '../models/detail/MovieWatchProvidersDTO';
-import { TmdbLogin } from '../tmdb/tmdb-login/tmdb-login';
+import { forkJoin, map, switchMap} from 'rxjs';
 
-
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TMDBClient {
+export class TmdbService {
 
   private readonly http = inject(HttpClient);
   private readonly apiKey = environment.tmdbApiKey;
 
-  private readonly baseUrl = TMDB_BASE_URL;
+  private readonly baseUrl = environment.tmdbBaseUrl;
   private readonly accessToken = environment.tmdbAccessToken;
   private readonly imgBaseUrl = 'https://image.tmdb.org/t/p/';
 
@@ -58,71 +51,7 @@ export class TMDBClient {
       params: new HttpParams().set('page', page)
     });
   }
-  markAsFavorite(movieId: number, favorite: boolean = true) {
-
-    const sessionId = localStorage.getItem('session_id');
-    const accountId = localStorage.getItem('account_id');
-
-    const url = `${this.baseUrl}/account/` + accountId + `/favorite`;
-
-    const params = new HttpParams()
-      .set('session_id', sessionId || '')
-      .set('api_key', this.apiKey);
-
-    const body = {
-      media_type: 'movie',
-      media_id: movieId,
-      favorite: favorite
-    };
-
-    return this.http.post(url, body, { params });
-
-  }
-
-  getFavoriteMovies(page: number = 1): Observable<any> {
-    const sessionId = localStorage.getItem('session_id');
-    const accountId = localStorage.getItem('account_id');
-
-    if (!sessionId || !accountId) {
-      return throwError(() => new Error('Usuario no loggeado.'));
-    }
-    const params = new HttpParams()
-      .set('api_key', this.apiKey)
-      .set('session_id', sessionId!)
-      .set('language', 'es-ES')
-      .set('sort_by', 'created_at.desc')
-      .set('page', page.toString());
-
-    return this.http.get(
-      `${this.baseUrl}/account/${accountId}/favorite/movies`,
-      { params }
-    );
-  }
-
-  getMovieDetail(movieId: number): Observable<MovieDetailDTO> {
-    return this.http.get<MovieDetailDTO>(`${this.baseUrl}/movie/${movieId}`, {
-      headers: this.defaultHeaders
-    });
-  }
-
-  getMovieCredits(movieId: number): Observable<MovieCreditsDTO> {
-    return this.http.get<MovieCreditsDTO>(`${this.baseUrl}/movie/${movieId}/credits`, {
-      headers: this.defaultHeaders
-    });
-  }
-
-  getMovieVideos(movieId: number): Observable<MovieVideosDTO> {
-    return this.http.get<MovieVideosDTO>(`${this.baseUrl}/movie/${movieId}/videos`, {
-      headers: this.defaultHeaders
-    });
-  }
-
-  getMovieWatchProviders(movieId: number): Observable<MovieWatchProvidersDTO> {
-    return this.http.get<MovieWatchProvidersDTO>(`${this.baseUrl}/movie/${movieId}/watch/providers`, {
-      headers: this.defaultHeaders
-    });
-  }
-
+ 
 
   getCategories(): Observable<CategoriesDTO> {
     return this.http.get<CategoriesDTO>(`${this.baseUrl}/genre/movie/list`, {
@@ -146,34 +75,6 @@ export class TMDBClient {
     if (!posterPath) return 'assets/no-image.png';
     return `${this.imgBaseUrl}${size}${posterPath}`;
   }
-
-  getBackdropUrl(backdropPath: string | null | undefined, size: string = 'w1280'): string {
-    if (!backdropPath) return 'assets/no-image.png';
-    return `${this.imgBaseUrl}${size}${backdropPath}`;
-  }
-
-  getProfileUrl(profilePath: string | null | undefined, size: string = 'w185'): string {
-    if (!profilePath) return 'assets/no-image.png';
-    return `${this.imgBaseUrl}${size}${profilePath}`;
-  }
-
-
-  getTrailerUrl(videoKey: string): string {
-    return `https://www.youtube.com/watch?v=${videoKey}`;
-  }
-
-  getTrailerEmbedUrl(videoKey: string): string {
-    return `https://www.youtube.com/embed/${videoKey}`;
-  }
-
-  getProviderLogoUrl(logoPath: string): string {
-    if (!logoPath) return 'assets/no-image.png';
-    return `${this.imgBaseUrl}w92${logoPath}`;
-  }
-
-  // =====================================================================================
-  //  GEMINI SERVICE
-  // ====================================================================================
 
 searchMoviesWithFilters(
   filters: { genres: string[]; actors: string[]; text?: string; onlyTitles?: boolean },
@@ -207,12 +108,6 @@ searchMoviesWithFilters(
   const genreIds = normalizedGenres
     .map(g => genreMap.get(g))
     .filter((id): id is number => !!id);
-
-
-  // ===============================
-  //    BÚSQUEDA CORREGIDA DE ACTORES
-  //     Devuelve: [{ name: string, id: number | null }]
-  // ===============================
 
   const searchActorsByName = (names: string[]) => {
     if (!names.length) return of<{ name: string; id: number | null }[]>([]);
@@ -301,10 +196,6 @@ searchMoviesWithFilters(
   };
 
 
-  // ===============================
-  //   ✔ LÓGICA PRINCIPAL
-  // ===============================
-
   return searchActorsByName(normalizedActors).pipe(
     switchMap(actorSearchResults => {
 
@@ -341,8 +232,4 @@ searchMoviesWithFilters(
     })
   );
 }
-
-
-
-
 }

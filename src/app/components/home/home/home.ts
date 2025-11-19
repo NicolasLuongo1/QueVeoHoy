@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from '../../../tmdb/auth-service';
-import { TMDBClient } from '../../../services/tmbdClient';
+import { TmdbService } from '../../../services/tmdb-service';
 import { MovieCard } from '../../movie-card/movie-card/movie-card';
 import { GeminiChat } from '../../../gemini/gemini-chat/gemini-chat';
 
@@ -18,7 +18,7 @@ export class HomeComponent {
 
   private auth = inject(AuthService);
   private router = inject(Router);
-  private tmdb = inject(TMDBClient);
+  private tmdb = inject(TmdbService);
 
   // Signals
   loading = signal(true);
