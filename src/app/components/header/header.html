@@ -1,14 +1,22 @@
 @let logged = isLoggedIn();
 
 @if (logged) {
-  <header class="header">
-    <h2>¿Que Veo Hoy?</h2>
-<img src="/logo-qvh.png" class="logo" alt="Logo" />
+<header class="header">
 
-    <nav class="navbar">
-      <a routerLink="/home">Inicio</a>
-      <a routerLink="/favorites">Favoritos</a>
-      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
-    </nav>
-  </header>
-}
+  <img src="/logo.svg" class="logo" alt="Logo" routerLink="/home" />
+
+  <nav class="navbar">
+    <a routerLink="/home">Inicio</a>
+    <a routerLink="/favorites">Favoritos</a>
+    <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+  </nav>
+</header>
+} @else {
+<header class="header">
+
+  <div class="logo-box">
+   <img src="/logo.svg" class="logo-img" alt="Logo">
+ 
+  </div>
+</header>
+  }
