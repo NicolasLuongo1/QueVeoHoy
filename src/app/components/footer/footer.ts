@@ -10,20 +10,9 @@ import { Router } from '@angular/router';
 })
 export class Footer {
 private auth = inject(AuthService);
-  private router = inject(Router);
-  
-  @Output() logoutEvent = new EventEmitter<void>();
 
-  // 👇 señal expuesta correctamente al template
   readonly isLoggedIn = this.auth.isLoggedIn;
 
 
-goHome() {
-  this.router.navigate(['/home']);
-}
 
-  logout() {
-    this.auth.logout();
-    this.logoutEvent.emit();
-  }
 }
