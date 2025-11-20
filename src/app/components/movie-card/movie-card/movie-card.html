@@ -5,6 +5,7 @@
       class="poster"
       [src]="getPosterUrl()"
       [alt]="movie.title"
+      (error)="onImgError($event)"
     />
 
     <div class="overlay">
