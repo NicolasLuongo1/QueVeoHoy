@@ -1,0 +1,23 @@
+/* Crear css basandonos en footer.html */
+footer {
+    background-color: #222;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+}
+
+footer p {
+    margin: 0;
+}
+
+footer a {
+    color: #8f5bff;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
