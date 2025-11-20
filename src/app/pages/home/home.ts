@@ -1,16 +1,18 @@
 import { Component, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { AuthService } from '../../../tmdb/auth-service';
-import { TmdbService } from '../../../services/tmdb-service';
-import { MovieCard } from '../../movie-card/movie-card/movie-card';
-import { GeminiChat } from '../../../gemini/gemini-chat/gemini-chat';
+import { AuthService } from '../../tmdb/auth-service';
+import { TmdbService } from '../../services/tmdb-service';
+import { MovieCard } from '../../components/movie-card/movie-card/movie-card';
+import { GeminiChat } from '../../gemini/gemini-chat/gemini-chat';
+import { filter } from 'rxjs/operators';
+import { EmptyState } from '../../components/empty-state/empty-state';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MovieCard, GeminiChat],
+  imports: [CommonModule, MovieCard, GeminiChat, EmptyState],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
@@ -25,6 +27,8 @@ export class HomeComponent {
   movies = signal<any[]>([]);
   page = signal(1);
   totalPages = signal(0);
+  noResults = signal(false);
+
 
   // Filtros actuales
 currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boolean }>({
@@ -42,7 +46,22 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
     if (this.currentFilters().genres.length === 0 && this.currentFilters().actors.length === 0) {
       this.fetchPopularMovies();
     }
+    // SI SE NAVEGA A /home (INCLUSO MISMA RUTA), RECARGA
+  this.router.events
+    .pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe((event: NavigationEnd) => {
+      if (event.url === '/home') {
+        this.refreshHome();
+      }
+    });
   }
+
+  refreshHome() {
+  this.currentFilters.set({ genres: [], actors: [], onlyTitles: false });
+  this.page.set(1);
+  this.movies.set([]);
+  this.fetchPopularMovies();
+}
 
   fetchPopularMovies() {
     this.loading.set(true);
@@ -52,6 +71,7 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
         this.movies.set(res.results);
         this.totalPages.set(res.total_pages);
         this.loading.set(false);
+        this.noResults.set(res.results.length === 0);
       },
       error: err => {
         console.error('Error cargando películas populares:', err);
@@ -78,6 +98,7 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
         this.page.set(nextPage);
         this.totalPages.set('total_pages' in res ? res.total_pages : this.totalPages());
         this.loading.set(false);
+        this.noResults.set(res.results.length === 0);
       },
       error: err => {
         console.error(err);
@@ -91,6 +112,7 @@ applyGeminiFilters(filters: { genres: string[]; actors: string[]; onlyTitles?: b
   this.page.set(1);
   this.movies.set([]);
   this.currentFilters.set(filters);
+  
 
   // Si el usuario quiere SOLO títulos → texto = lo que escribió en el input
   if (filters.onlyTitles) {
@@ -107,6 +129,7 @@ applyGeminiFilters(filters: { genres: string[]; actors: string[]; onlyTitles?: b
         this.movies.set(res.results);
         this.totalPages.set(res.total_pages);
         this.loading.set(false);
+        this.noResults.set(res.results.length === 0); 
       },
       error: err => {
         console.error(err);
@@ -131,6 +154,8 @@ applyGeminiFilters(filters: { genres: string[]; actors: string[]; onlyTitles?: b
       this.movies.set(res.results);
       this.totalPages.set(res.total_pages);
       this.loading.set(false);
+      this.noResults.set(res.results.length === 0);
+      
     },
     error: err => {
       console.error(err);

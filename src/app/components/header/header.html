@@ -3,7 +3,7 @@
 @if (logged) {
 <header class="header">
 
-  <img src="/logo.svg" class="logo" alt="Logo" routerLink="/home" />
+<img src="/logo.svg" class="logo" alt="Logo" (click)="goHome()" />
 
   <nav class="navbar">
     <a routerLink="/home">Inicio</a>
@@ -15,7 +15,7 @@
 <header class="header">
 
   <div class="logo-box">
-   <img src="/logo.svg" class="logo-img" alt="Logo">
+<img src="/logo.svg" class="logo" alt="Logo" (click)="goHome()" />
  
   </div>
 </header>

@@ -1,7 +1,7 @@
 
 import { Routes } from '@angular/router';
 
-import { HomeComponent } from './components/home/home/home';
+import { HomeComponent } from './pages/home/home';
 import { TmdbLogin } from './tmdb/tmdb-login/tmdb-login';
 import { MovieDetail } from './pages/movie-detail/movie-detail';
 import { authGuard } from './guards/auth.guard';
