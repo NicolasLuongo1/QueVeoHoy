@@ -2,12 +2,12 @@ import { Component, signal, inject, computed } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { AuthService } from '../../tmdb/auth-service';
 import { TmdbService } from '../../services/tmdb-service';
 import { MovieCard } from '../../components/movie-card/movie-card/movie-card';
 import { GeminiChat } from '../../gemini/gemini-chat/gemini-chat';
 import { filter } from 'rxjs/operators';
 import { EmptyState } from '../../components/empty-state/empty-state';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-home',

@@ -2,11 +2,11 @@
 import { Routes } from '@angular/router';
 
 import { HomeComponent } from './pages/home/home';
-import { TmdbLogin } from './tmdb/tmdb-login/tmdb-login';
-import { MovieDetail } from './pages/movie-detail/movie-detail';
+import { MovieDetail } from './pages/detail/movie-detail';
 import { authGuard } from './guards/auth.guard';
 import { Favorites } from './pages/favorites/favorites';
 import { loginGuard } from './guards/login.guards';
+import { TmdbLogin } from './pages/login/tmdb-login';
 
 
 export const routes: Routes = [

@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
-import { AuthService } from '../auth-service';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router'; 
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'tmdb-login',

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../tmdb/auth-service';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-header',
