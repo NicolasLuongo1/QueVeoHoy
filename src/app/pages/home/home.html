@@ -33,4 +33,8 @@
       <button (click)="loadMore()">Cargar Más Películas</button>
     </div>
   }
+
+  @if (!loading() && noResults()) {
+    <app-empty-state />
+}
 </div>
