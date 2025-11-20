@@ -123,16 +123,6 @@ export class MovieDetail {
     return director?.name || '';
   }
 
-  getDirectorInfo(): { name: string; profilePath: string | null } | null {
-    const credits = this.credits();
-    if (!credits?.crew || !Array.isArray(credits.crew)) return null;
-    const director = credits.crew.find((member: Cast) => member.job === 'Director');
-    if (!director) return null;
-    return {
-      name: director.name,
-      profilePath: director.profile_path
-    };
-  }
 
   getMusicComposer(): string {
     const credits = this.credits();
@@ -205,12 +195,6 @@ export class MovieDetail {
     return this.client.getTrailerUrl(trailer.key);
   }
 
-  // Obtener URL embebida del trailer
-  getTrailerEmbedUrl(): string | null {
-    const trailer = this.getTrailer();
-    if (!trailer) return null;
-    return this.client.getTrailerEmbedUrl(trailer.key);
-  }
 
   // Obtener plataformas de streaming (priorizar región Argentina, segundo francia)
   getStreamingPlatforms(): WatchProvider[] {
