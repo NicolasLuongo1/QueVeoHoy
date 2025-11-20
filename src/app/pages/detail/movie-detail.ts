@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TMDBClient } from '../../services/tmbdClient';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MovieDetailDTO } from '../../models/detail/MovieDetailDTO';
 import { MovieCreditsDTO, Cast } from '../../models/detail/MovieCreditsDTO';
@@ -11,6 +10,7 @@ import { MovieDescription } from './_components/movie-description/movie-descript
 import { MovieCast } from './_components/movie-cast/movie-cast';
 import { MovieReviews } from './_components/movie-reviews/movie-reviews';
 import { MovieInfoSidebar } from './_components/movie-info-sidebar/movie-info-sidebar';
+import { MovieDetailService } from '../../services/movie-detail-service';
 
 @Component({
   selector: 'app-movie-detail',
@@ -26,7 +26,7 @@ import { MovieInfoSidebar } from './_components/movie-info-sidebar/movie-info-si
   styleUrl: './movie-detail.css',
 })
 export class MovieDetail {
-  protected readonly client = inject(TMDBClient)
+  protected readonly client = inject(MovieDetailService)
   protected readonly route = inject(ActivatedRoute)
   protected readonly router = inject(Router)
   protected movie = signal<MovieDetailDTO | null>(null)
@@ -42,7 +42,6 @@ export class MovieDetail {
       this.client.getMovieDetail(movieId).subscribe({
         next:(resp)=>{
           this.movie.set(resp)
-          console.log('Pelicula cargada', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar la pelicula', erro) 
@@ -54,7 +53,6 @@ export class MovieDetail {
       this.client.getMovieCredits(movieId).subscribe({
         next:(resp)=>{
           this.credits.set(resp)
-          console.log('Creditos cargados', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar los creditos', erro) 
@@ -65,7 +63,6 @@ export class MovieDetail {
       this.client.getMovieVideos(movieId).subscribe({
         next:(resp)=>{
           this.videos.set(resp)
-          console.log('Videos cargados', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar los videos', erro) 
@@ -76,7 +73,6 @@ export class MovieDetail {
       this.client.getMovieWatchProviders(movieId).subscribe({
         next:(resp)=>{
           this.watchProviders.set(resp)
-          console.log('Watch providers cargados', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar watch providers', erro) 
@@ -127,16 +123,6 @@ export class MovieDetail {
     return director?.name || '';
   }
 
-  getDirectorInfo(): { name: string; profilePath: string | null } | null {
-    const credits = this.credits();
-    if (!credits?.crew || !Array.isArray(credits.crew)) return null;
-    const director = credits.crew.find((member: Cast) => member.job === 'Director');
-    if (!director) return null;
-    return {
-      name: director.name,
-      profilePath: director.profile_path
-    };
-  }
 
   getMusicComposer(): string {
     const credits = this.credits();
@@ -209,12 +195,6 @@ export class MovieDetail {
     return this.client.getTrailerUrl(trailer.key);
   }
 
-  // Obtener URL embebida del trailer
-  getTrailerEmbedUrl(): string | null {
-    const trailer = this.getTrailer();
-    if (!trailer) return null;
-    return this.client.getTrailerEmbedUrl(trailer.key);
-  }
 
   // Obtener plataformas de streaming (priorizar región Argentina, segundo francia)
   getStreamingPlatforms(): WatchProvider[] {

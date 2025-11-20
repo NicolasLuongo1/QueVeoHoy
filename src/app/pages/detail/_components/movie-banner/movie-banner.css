@@ -20,16 +20,23 @@
 
 .banner-content {
   position: relative;
+  padding: 20px 25px;
+  border-radius: 12px;
+  top: 100px;   
+  bottom: 10px;           
+  left: 20px;   
+  right: 600px;            
+  width: 450px;             
   z-index: 10;
   width: 100%;
-  max-width: 1200px;
+  max-width: 13000px;
   margin: 0 auto;
+  ;
 }
 
 .movie-title {
   font-size: 3rem;
   font-weight: bold;
-  margin: 0 0 1rem 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   color: #fff;
   word-wrap: break-word;
@@ -40,6 +47,7 @@
 .movie-description {
   font-size: 1.1rem;
   max-width: 600px;
+  margin-top: 1rem;
   margin-bottom: 2rem;
   line-height: 1.6;
   color: #e0e0e0;
