@@ -153,6 +153,6 @@ p:first-of-type {
 
 
 p:last-of-type {
-  color: #ffcdd2; 
-  background-color: #D32F2F; 
+  color: black; 
+  background-color: #e0e0e0; 
 }
