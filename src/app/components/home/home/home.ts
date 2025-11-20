@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -32,6 +32,12 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
   actors: [],
   onlyTitles: false
 });
+  popularTop10 = computed(() => {
+    return this.movies().slice(0, 10);
+  });
+  gralMovies = computed(() => {
+    return this.movies().slice(10);
+  });
 
   // IDs de géneros y actores
   currentGenreIds: number[] = [];

@@ -4,8 +4,22 @@
   <h2>Películas Populares</h2>
   <gemini-chat (filtersEvent)="applyGeminiFilters($event)"></gemini-chat>
 
+ <h2 class="top-rated-carrusel"> TOP 10 </h2>
+ <div class="carousel-infinite">
+  <div class="carousel-track">
+    @for (movie of popularTop10(); track movie.id) {
+      <app-movie-card class="carousel-item" [movie]="movie" />
+    }
+
+    <!-- Duplicado para hacer el loop -->
+    @for (movie of popularTop10(); track movie.id + '-dup') {
+      <app-movie-card class="carousel-item" [movie]="movie" />
+    }
+  </div>
+</div>
+  
   <div class="movies-grid">
-    @for (movie of movies(); track movie.id) {
+    @for (movie of gralMovies(); track movie.id) {
       <app-movie-card [movie]="movie" />
     }
   </div>
