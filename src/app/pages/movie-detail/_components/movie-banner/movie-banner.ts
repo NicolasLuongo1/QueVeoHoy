@@ -52,9 +52,6 @@ toggleFavorite() {
     const id = this.movieId();
 
     this.favoriteClient.markAsFavorite(id, true).subscribe({
-      next: (res) => {
-        console.log('Agregado a favoritos', res);
-      },
       error: (err) => {
         console.error('Error agregando favorito', err);
       },

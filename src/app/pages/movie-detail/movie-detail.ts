@@ -42,7 +42,6 @@ export class MovieDetail {
       this.client.getMovieDetail(movieId).subscribe({
         next:(resp)=>{
           this.movie.set(resp)
-          console.log('Pelicula cargada', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar la pelicula', erro) 
@@ -54,7 +53,6 @@ export class MovieDetail {
       this.client.getMovieCredits(movieId).subscribe({
         next:(resp)=>{
           this.credits.set(resp)
-          console.log('Creditos cargados', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar los creditos', erro) 
@@ -65,7 +63,6 @@ export class MovieDetail {
       this.client.getMovieVideos(movieId).subscribe({
         next:(resp)=>{
           this.videos.set(resp)
-          console.log('Videos cargados', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar los videos', erro) 
@@ -76,7 +73,6 @@ export class MovieDetail {
       this.client.getMovieWatchProviders(movieId).subscribe({
         next:(resp)=>{
           this.watchProviders.set(resp)
-          console.log('Watch providers cargados', resp)
         },
         error:(erro)=>{          
           console.error('Fallo al cargar watch providers', erro) 
