@@ -51,7 +51,7 @@ export class MovieDetailService {
   }
 
   getBackdropUrl(backdropPath: string | null | undefined, size: string = 'w1280'): string {
-    if (!backdropPath) return 'assets/no-image.png';
+    if (!backdropPath) return '/no-image.png';
     return `${this.imgBaseUrl}${size}${backdropPath}`;
   }
 
