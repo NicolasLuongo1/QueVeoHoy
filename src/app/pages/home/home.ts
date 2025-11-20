@@ -28,7 +28,7 @@ export class HomeComponent {
   page = signal(1);
   totalPages = signal(0);
   noResults = signal(false);
-
+  geminiFlag = signal(true); 
 
   // Filtros actuales
 currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boolean }>({
@@ -51,6 +51,7 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
     // Solo cargar populares si NO hay filtros
     if (this.currentFilters().genres.length === 0 && this.currentFilters().actors.length === 0) {
       this.fetchPopularMovies();
+      this.geminiFlag.set(false);
     }
     // SI SE NAVEGA A /home (INCLUSO MISMA RUTA), RECARGA
   this.router.events
@@ -66,6 +67,7 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
   this.currentFilters.set({ genres: [], actors: [], onlyTitles: false });
   this.page.set(1);
   this.movies.set([]);
+  this.geminiFlag.set(false);
   this.fetchPopularMovies();
 }
 
@@ -114,6 +116,7 @@ currentFilters = signal<{ genres: string[]; actors: string[]; onlyTitles?: boole
   }
 
 applyGeminiFilters(filters: { genres: string[]; actors: string[]; onlyTitles?: boolean }) {
+   this.geminiFlag.set(true);
   this.loading.set(true);
   this.page.set(1);
   this.movies.set([]);
